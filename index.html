@@ -60,8 +60,28 @@
             <nav id="controls" aria-label="Main game controls">
                 <button id="explore-btn" class="main-btn" aria-label="Explore the wilderness to find cats">🔍 Explore for Cats</button>
                 <button id="collection-btn" class="main-btn" aria-label="View your cat collection">📚 View Collection</button>
+                <button id="achievements-btn" class="main-btn" aria-label="View achievements">🏆 Achievements</button>
+                <button id="analytics-btn" class="main-btn" aria-label="View analytics dashboard">📊 Analytics</button>
                 <button id="help-btn" class="main-btn" aria-label="Show help information">❓ Help</button>
             </nav>
+            
+            <!-- Achievements Panel -->
+            <aside id="achievements-panel" class="side-panel hidden" aria-label="Achievements">
+                <div class="panel-header">
+                    <h3>🏆 Achievements</h3>
+                    <button class="close-panel-btn" onclick="closeAchievements()" aria-label="Close achievements panel">×</button>
+                </div>
+                <div id="achievements-content"></div>
+            </aside>
+            
+            <!-- Analytics Panel -->
+            <aside id="analytics-panel" class="side-panel hidden" aria-label="Analytics Dashboard">
+                <div class="panel-header">
+                    <h3>📊 Analytics</h3>
+                    <button class="close-panel-btn" onclick="closeAnalytics()" aria-label="Close analytics panel">×</button>
+                </div>
+                <div id="analytics-content"></div>
+            </aside>
         </main>
 
         <!-- Help Modal -->
@@ -103,7 +123,10 @@
         </div>
     </div>
 
-    <script src="catData.js"></script>
-    <script src="game.js"></script>
+    <script src="catData.js?v=2.0.1"></script>
+    <script src="achievements.js?v=2.0.0"></script>
+    <script src="visuals.js?v=2.0.0"></script>
+    <script src="analytics.js?v=2.0.0"></script>
+    <script src="game.js?v=2.0.1"></script>
 </body>
 </html>

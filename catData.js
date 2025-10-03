@@ -433,7 +433,15 @@ const CAT_FACTS = [
     "The cat approaches slowly, cautiously..."
 ];
 
-// Export for use in game.js
+// Export for use in game.js - both Node.js and browser
 if (typeof module !== 'undefined' && module.exports) {
+    // Node.js export
     module.exports = { CAT_BREEDS, RARITY_COLORS, RARITY_CHANCE, CAT_FACTS };
+} else if (typeof window !== 'undefined') {
+    // Browser export - attach to window object
+    window.CAT_BREEDS = CAT_BREEDS;
+    window.RARITY_COLORS = RARITY_COLORS;
+    window.RARITY_CHANCE = RARITY_CHANCE;
+    window.CAT_FACTS = CAT_FACTS;
+    console.log('✅ Cat data loaded:', CAT_BREEDS.length, 'breeds available');
 }

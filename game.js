@@ -3,7 +3,15 @@ let gameState = {
     collectedCats: new Set(),
     playerEnergy: 100,
     currentEncounter: null,
-    lastEncounterTime: 0
+    lastEncounterTime: 0,
+    gameStartTime: Date.now(),
+    explorationCount: 0,
+    firstTrySuccesses: 0,
+    observeCount: 0,
+    treatSuccesses: 0,
+    approachCount: 0,
+    unlockedAchievements: new Set(),
+    analytics: null
 };
 
 // Canvas setup
@@ -16,6 +24,10 @@ let cachedGradients = null;
 // Energy regeneration interval ID
 let energyRegenInterval = null;
 
+// Initialization retry counter
+let initRetryCount = 0;
+const MAX_INIT_RETRIES = 20; // Max 1 second of retries (20 * 50ms)
+
 /**
  * Initialize game on page load
  * Sets up initial state, loads saved data, and renders the UI
@@ -26,6 +38,21 @@ function initGame() {
         console.error('Canvas element not found. Game cannot initialize.');
         return;
     }
+    
+    // Verify CAT_BREEDS is loaded
+    if (!window.CAT_BREEDS || !Array.isArray(window.CAT_BREEDS)) {
+        initRetryCount++;
+        if (initRetryCount >= MAX_INIT_RETRIES) {
+            console.error('❌ Failed to load CAT_BREEDS after', MAX_INIT_RETRIES, 'retries');
+            alert('Failed to load cat data. Please refresh the page.');
+            return;
+        }
+        console.log('⏳ Waiting for cat data... (attempt', initRetryCount, 'of', MAX_INIT_RETRIES + ')');
+        setTimeout(initGame, 50); // Retry after 50ms
+        return;
+    }
+    
+    console.log('✅ Game initializing with', window.CAT_BREEDS.length, 'cat breeds');
 
     loadGameState();
     renderCollection();
@@ -34,6 +61,14 @@ function initGame() {
     drawScene();
     setupEventListeners();
     startEnergyRegeneration();
+    
+    // Initialize new systems
+    if (window.initAnalytics) {
+        initAnalytics(gameState);
+    }
+    if (window.updateAchievements) {
+        updateAchievements(gameState);
+    }
 }
 
 /**
@@ -42,9 +77,23 @@ function initGame() {
  */
 function saveGameState() {
     try {
+        // Update play time before saving
+        if (window.updatePlayTime) {
+            updatePlayTime(gameState);
+        }
+        
         localStorage.setItem('catCollectorGame', JSON.stringify({
             collectedCats: Array.from(gameState.collectedCats),
-            playerEnergy: gameState.playerEnergy
+            playerEnergy: gameState.playerEnergy,
+            gameStartTime: gameState.gameStartTime,
+            explorationCount: gameState.explorationCount,
+            firstTrySuccesses: gameState.firstTrySuccesses,
+            observeCount: gameState.observeCount,
+            treatSuccesses: gameState.treatSuccesses,
+            approachCount: gameState.approachCount,
+            unlockedAchievements: Array.from(gameState.unlockedAchievements || []),
+            analytics: gameState.analytics,
+            tenthCatTime: gameState.tenthCatTime
         }));
     } catch (error) {
         console.error('Failed to save game state:', error);
@@ -63,6 +112,15 @@ function loadGameState() {
             const data = JSON.parse(saved);
             gameState.collectedCats = new Set(data.collectedCats || []);
             gameState.playerEnergy = data.playerEnergy ?? 100;
+            gameState.gameStartTime = data.gameStartTime || Date.now();
+            gameState.explorationCount = data.explorationCount || 0;
+            gameState.firstTrySuccesses = data.firstTrySuccesses || 0;
+            gameState.observeCount = data.observeCount || 0;
+            gameState.treatSuccesses = data.treatSuccesses || 0;
+            gameState.approachCount = data.approachCount || 0;
+            gameState.unlockedAchievements = new Set(data.unlockedAchievements || []);
+            gameState.analytics = data.analytics || null;
+            gameState.tenthCatTime = data.tenthCatTime || null;
         }
     } catch (error) {
         console.error('Failed to load game state:', error);
@@ -78,6 +136,8 @@ function setupEventListeners() {
     // Main control buttons
     document.getElementById('explore-btn')?.addEventListener('click', exploreForCats);
     document.getElementById('collection-btn')?.addEventListener('click', scrollToCollection);
+    document.getElementById('achievements-btn')?.addEventListener('click', showAchievements);
+    document.getElementById('analytics-btn')?.addEventListener('click', showAnalytics);
     document.getElementById('help-btn')?.addEventListener('click', showHelp);
     document.getElementById('close-details')?.addEventListener('click', closeCatDetails);
     
@@ -248,12 +308,18 @@ function exploreForCats() {
     
     // Reduce energy
     gameState.playerEnergy = Math.max(0, gameState.playerEnergy - 10);
+    gameState.explorationCount = (gameState.explorationCount || 0) + 1;
     updatePlayerStats();
     saveGameState();
     
     // Restart energy regeneration if it was stopped
     if (!energyRegenInterval && gameState.playerEnergy < 100) {
         startEnergyRegeneration();
+    }
+    
+    // Update achievements
+    if (window.updateAchievements) {
+        updateAchievements(gameState);
     }
     
     // Select a cat based on rarity
@@ -264,8 +330,14 @@ function exploreForCats() {
         return;
     }
     
-    // Show encounter
+    // Show encounter with visual effects
     showEncounter(cat);
+    
+    // Create sparkle effect on canvas
+    if (window.createSparkles && canvas) {
+        const rect = canvas.getBoundingClientRect();
+        createSparkles(rect.left + canvas.width / 2, rect.top + canvas.height / 2, '#ffd700', 10);
+    }
 }
 
 /**
@@ -274,13 +346,13 @@ function exploreForCats() {
  */
 function selectRandomCat() {
     // Verify CAT_BREEDS is available
-    if (!window.CAT_BREEDS || !Array.isArray(CAT_BREEDS)) {
+    if (!window.CAT_BREEDS || !Array.isArray(window.CAT_BREEDS)) {
         console.error('CAT_BREEDS data not loaded');
         return null;
     }
     
     // Filter cats by rarity and availability
-    const availableCats = CAT_BREEDS.filter(cat => !gameState.collectedCats.has(cat.id));
+    const availableCats = window.CAT_BREEDS.filter(cat => !gameState.collectedCats.has(cat.id));
     
     if (availableCats.length === 0) {
         alert('🎉 Congratulations! You\'ve collected all the cats! 🎉');
@@ -292,7 +364,7 @@ function selectRandomCat() {
     let cumulativeProbability = 0;
     let targetRarity = '';
     
-    for (const [rarity, chance] of Object.entries(RARITY_CHANCE)) {
+    for (const [rarity, chance] of Object.entries(window.RARITY_CHANCE || {})) {
         cumulativeProbability += chance;
         if (rand <= cumulativeProbability) {
             targetRarity = rarity;
@@ -345,8 +417,15 @@ function handleEncounterAction(action) {
     const cat = gameState.currentEncounter;
     if (!cat) return;
     
+    const isFirstAttempt = !gameState.currentEncounterAttempted;
+    gameState.currentEncounterAttempted = true;
+    
     let success = false;
     let message = '';
+    
+    // Track action counts
+    if (action === 'observe') gameState.observeCount = (gameState.observeCount || 0) + 1;
+    if (action === 'approach') gameState.approachCount = (gameState.approachCount || 0) + 1;
     
     // Calculate success based on cat stats and action
     const baseChance = 0.5;
@@ -376,10 +455,46 @@ function handleEncounterAction(action) {
     
     success = Math.random() < successChance;
     
+    // Track for analytics
+    if (window.recordExploration) {
+        recordExploration(gameState, cat, action, success);
+    }
+    
     if (success) {
+        // Track treat successes
+        if (action === 'treat') {
+            gameState.treatSuccesses = (gameState.treatSuccesses || 0) + 1;
+        }
+        
+        // Track first try success
+        if (isFirstAttempt) {
+            gameState.firstTrySuccesses = (gameState.firstTrySuccesses || 0) + 1;
+        }
+        
+        // Track 10th cat time for speedrun achievement
+        if (gameState.collectedCats.size === 9) {
+            gameState.tenthCatTime = Date.now();
+        }
+        
         // Add to collection
         gameState.collectedCats.add(cat.id);
         saveGameState();
+        
+        // Create visual effects
+        if (window.createConfetti && canvas) {
+            const rect = canvas.getBoundingClientRect();
+            createConfetti(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
+        }
+        
+        if (window.createHearts && canvas) {
+            const rect = canvas.getBoundingClientRect();
+            createHearts(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
+        }
+        
+        // Update achievements
+        if (window.updateAchievements) {
+            updateAchievements(gameState);
+        }
         
         alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!`);
         
@@ -388,7 +503,7 @@ function handleEncounterAction(action) {
         renderCollection();
         updatePlayerStats();
         
-        // Show the new cat details
+        // Show the new cat details with enhanced portrait
         setTimeout(() => showCatDetails(cat.id), 500);
     } else {
         alert(`${cat.name} runs away! Try a different approach next time. 🏃‍♂️`);
@@ -396,6 +511,7 @@ function handleEncounterAction(action) {
     }
     
     gameState.currentEncounter = null;
+    gameState.currentEncounterAttempted = false;
 }
 
 /**
@@ -413,13 +529,13 @@ function renderCollection() {
     grid.innerHTML = '';
     
     // Verify CAT_BREEDS is available
-    if (!window.CAT_BREEDS || !Array.isArray(CAT_BREEDS)) {
+    if (!window.CAT_BREEDS || !Array.isArray(window.CAT_BREEDS)) {
         console.error('CAT_BREEDS data not loaded');
-        grid.innerHTML = '<p>Error loading cat data. Please refresh the page.</p>';
+        grid.innerHTML = '<p style="padding: 20px; text-align: center;">Loading cat data...</p>';
         return;
     }
     
-    CAT_BREEDS.forEach(cat => {
+    window.CAT_BREEDS.forEach(cat => {
         const card = document.createElement('div');
         const isCollected = gameState.collectedCats.has(cat.id);
         
@@ -461,7 +577,7 @@ function renderCollection() {
  * @param {number} catId - ID of the cat to display
  */
 function showCatDetails(catId) {
-    const cat = CAT_BREEDS?.find(c => c.id === catId);
+    const cat = window.CAT_BREEDS?.find(c => c.id === catId);
     if (!cat || !gameState.collectedCats.has(catId)) return;
     
     const modal = document.getElementById('cat-details');
@@ -476,27 +592,39 @@ function showCatDetails(catId) {
         return;
     }
     
-    portrait.textContent = cat.icon;
+    // Use enhanced cat portrait if available
+    if (window.drawEnhancedCatPortrait) {
+        drawEnhancedCatPortrait(portrait, cat);
+    } else {
+        portrait.textContent = cat.icon;
+    }
+    
     name.textContent = cat.name;
     description.textContent = cat.description;
     origin.innerHTML = `<strong>Origin:</strong> ${cat.origin}<br><strong>Behavior:</strong> ${cat.behavior}<br><strong>Favorite Activity:</strong> ${cat.favoriteActivity}`;
     
-    // Render stats
-    statsDiv.innerHTML = '<h3>Stats</h3>';
-    
-    Object.entries(cat.stats).forEach(([stat, value]) => {
-        if (stat === 'rarity') return;
+    // Use animated stat bars if available
+    if (window.animateStatBars) {
+        statsDiv.innerHTML = '<h3>Stats</h3>';
+        animateStatBars('detail-stats', cat.stats);
+    } else {
+        // Fallback to simple stat bars
+        statsDiv.innerHTML = '<h3>Stats</h3>';
         
-        const statBar = document.createElement('div');
-        statBar.className = 'stat-bar';
-        statBar.innerHTML = `
-            <label>${stat.charAt(0).toUpperCase() + stat.slice(1)}</label>
-            <div class="stat-bar-bg">
-                <div class="stat-bar-fill" style="width: ${value}%" role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-        `;
-        statsDiv.appendChild(statBar);
-    });
+        Object.entries(cat.stats).forEach(([stat, value]) => {
+            if (stat === 'rarity') return;
+            
+            const statBar = document.createElement('div');
+            statBar.className = 'stat-bar';
+            statBar.innerHTML = `
+                <label>${stat.charAt(0).toUpperCase() + stat.slice(1)}</label>
+                <div class="stat-bar-bg">
+                    <div class="stat-bar-fill" style="width: ${value}%" role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            `;
+            statsDiv.appendChild(statBar);
+        });
+    }
     
     modal.classList.remove('hidden');
     // Focus on close button for accessibility
@@ -523,7 +651,7 @@ function updatePlayerStats() {
     const playerEnergy = document.getElementById('player-energy');
     
     if (catsCollected) catsCollected.textContent = gameState.collectedCats.size;
-    if (totalCats && CAT_BREEDS) totalCats.textContent = CAT_BREEDS.length;
+    if (totalCats && window.CAT_BREEDS) totalCats.textContent = window.CAT_BREEDS.length;
     if (playerEnergy) playerEnergy.textContent = gameState.playerEnergy;
 }
 
@@ -574,6 +702,11 @@ function startEnergyRegeneration() {
             gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
             updatePlayerStats();
             saveGameState();
+            
+            // Visual feedback for energy gain
+            if (window.createEnergyPulse) {
+                createEnergyPulse();
+            }
         } else {
             // Stop regeneration when at max to save resources
             clearInterval(energyRegenInterval);
@@ -591,6 +724,8 @@ function handleKeyboardInput(e) {
     if (e.key === 'Escape') {
         closeCatDetails();
         closeHelp();
+        closeAchievements();
+        closeAnalytics();
         
         const encounterPanel = document.getElementById('encounter-panel');
         if (encounterPanel && !encounterPanel.classList.contains('hidden')) {
@@ -600,15 +735,68 @@ function handleKeyboardInput(e) {
     }
 }
 
+/**
+ * Show achievements panel
+ */
+function showAchievements() {
+    const panel = document.getElementById('achievements-panel');
+    if (panel) {
+        panel.classList.remove('hidden');
+        if (window.renderAchievementsPanel) {
+            renderAchievementsPanel(gameState);
+        }
+    }
+}
+
+/**
+ * Close achievements panel
+ */
+function closeAchievements() {
+    const panel = document.getElementById('achievements-panel');
+    if (panel) {
+        panel.classList.add('hidden');
+    }
+}
+
+/**
+ * Show analytics dashboard
+ */
+function showAnalytics() {
+    const panel = document.getElementById('analytics-panel');
+    if (panel) {
+        panel.classList.remove('hidden');
+        if (window.renderAnalyticsDashboard) {
+            renderAnalyticsDashboard(gameState);
+        }
+    }
+}
+
+/**
+ * Close analytics dashboard
+ */
+function closeAnalytics() {
+    const panel = document.getElementById('analytics-panel');
+    if (panel) {
+        panel.classList.add('hidden');
+    }
+}
+
 // Initialize game on page load
 window.addEventListener('DOMContentLoaded', initGame);
 
 // Expose functions to global scope for inline handlers
 window.closeHelp = closeHelp;
+window.closeAchievements = closeAchievements;
+window.closeAnalytics = closeAnalytics;
 
 // Clean up on page unload
 window.addEventListener('beforeunload', () => {
     if (energyRegenInterval) {
         clearInterval(energyRegenInterval);
+    }
+    
+    // Clean up particles
+    if (window.particleManager) {
+        particleManager.clear();
     }
 });
