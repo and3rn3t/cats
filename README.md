@@ -9,6 +9,8 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 - **Stat-Based Gameplay** - Each cat has unique stats: Cuteness, Friendliness, Energy, Intelligence, and Rarity
 - **No Fighting** - Cats don't battle! Instead, their stats determine how you interact with them
 - **Collection & Care** - Find cats, care for them, and build your collection
+- **Interactive Care Activities** - Feed, play, groom, and train your collected cats to increase their happiness!
+- **Training Minigame** - Test your reflexes in a fun cat training challenge
 - **Educational** - Learn about real cat breeds, their origins, and behaviors
 
 ## 🚀 How to Play
@@ -22,6 +24,18 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
    - **Offer Treat** - Always a good option, especially for calm cats
    - **Observe** - Best for shy or intelligent cats
 4. Successfully befriend cats to add them to your collection!
+5. Click on collected cats to view their details and access care activities
+
+### Cat Care Activities
+
+Once you've collected cats, you can interact with them through various care activities:
+
+- **🍽️ Feed** - Give your cat a tasty meal. More effective for cats with low energy stats!
+- **🎾 Play** - Play with your energetic cat. High-energy cats love this activity!
+- **✨ Groom** - Brush and pamper your cat. Perfect for beautiful cats with high cuteness!
+- **🎯 Train** - Play a fun minigame! Click the treats quickly when your cat looks at them. Smart cats (high intelligence) gain bonus happiness!
+
+Each activity increases your cat's happiness based on their stats. Happy cats are content cats! 💕
 
 ### Game Mechanics
 
@@ -113,9 +127,9 @@ Kids learn about:
 
 Potential additions:
 - More cat breeds (target: 50+)
-- Mini-games for interacting with collected cats
+- ✅ ~~Mini-games for interacting with collected cats~~ (Added training minigame!)
 - Trading system (multiplayer)
-- Cat care activities
+- ✅ ~~Cat care activities~~ (Feed, play, groom activities implemented!)
 - Achievement system
 - Sound effects and music
 - Different environments to explore
