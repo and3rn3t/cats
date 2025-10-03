@@ -8,48 +8,120 @@ let gameState = {
 
 // Canvas setup
 const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas?.getContext('2d');
 
-// Initialize game
+// Cached gradients for better performance
+let cachedGradients = null;
+
+// Energy regeneration interval ID
+let energyRegenInterval = null;
+
+/**
+ * Initialize game on page load
+ * Sets up initial state, loads saved data, and renders the UI
+ */
 function initGame() {
+    // Verify required DOM elements exist
+    if (!canvas || !ctx) {
+        console.error('Canvas element not found. Game cannot initialize.');
+        return;
+    }
+
     loadGameState();
     renderCollection();
     updatePlayerStats();
+    initializeGradients();
     drawScene();
     setupEventListeners();
+    startEnergyRegeneration();
 }
 
-// Save/Load game state
+/**
+ * Save game state to localStorage
+ * Persists collected cats and energy level
+ */
 function saveGameState() {
-    localStorage.setItem('catCollectorGame', JSON.stringify({
-        collectedCats: Array.from(gameState.collectedCats),
-        playerEnergy: gameState.playerEnergy
-    }));
-}
-
-function loadGameState() {
-    const saved = localStorage.getItem('catCollectorGame');
-    if (saved) {
-        const data = JSON.parse(saved);
-        gameState.collectedCats = new Set(data.collectedCats);
-        gameState.playerEnergy = data.playerEnergy;
+    try {
+        localStorage.setItem('catCollectorGame', JSON.stringify({
+            collectedCats: Array.from(gameState.collectedCats),
+            playerEnergy: gameState.playerEnergy
+        }));
+    } catch (error) {
+        console.error('Failed to save game state:', error);
+        alert('Warning: Your progress could not be saved. Please check your browser settings.');
     }
 }
 
-// Event Listeners
-function setupEventListeners() {
-    document.getElementById('explore-btn').addEventListener('click', exploreForCats);
-    document.getElementById('collection-btn').addEventListener('click', scrollToCollection);
-    document.getElementById('help-btn').addEventListener('click', showHelp);
-    document.getElementById('close-details').addEventListener('click', closeCatDetails);
-    
-    document.getElementById('approach-btn').addEventListener('click', () => handleEncounterAction('approach'));
-    document.getElementById('offer-treat-btn').addEventListener('click', () => handleEncounterAction('treat'));
-    document.getElementById('observe-btn').addEventListener('click', () => handleEncounterAction('observe'));
+/**
+ * Load game state from localStorage
+ * Restores previously saved progress if available
+ */
+function loadGameState() {
+    try {
+        const saved = localStorage.getItem('catCollectorGame');
+        if (saved) {
+            const data = JSON.parse(saved);
+            gameState.collectedCats = new Set(data.collectedCats || []);
+            gameState.playerEnergy = data.playerEnergy ?? 100;
+        }
+    } catch (error) {
+        console.error('Failed to load game state:', error);
+        // Continue with default state if loading fails
+    }
 }
 
-// Draw the game scene
+/**
+ * Set up all event listeners for the game
+ * Uses optional chaining to prevent errors if elements don't exist
+ */
+function setupEventListeners() {
+    // Main control buttons
+    document.getElementById('explore-btn')?.addEventListener('click', exploreForCats);
+    document.getElementById('collection-btn')?.addEventListener('click', scrollToCollection);
+    document.getElementById('help-btn')?.addEventListener('click', showHelp);
+    document.getElementById('close-details')?.addEventListener('click', closeCatDetails);
+    
+    // Encounter action buttons
+    document.getElementById('approach-btn')?.addEventListener('click', () => handleEncounterAction('approach'));
+    document.getElementById('offer-treat-btn')?.addEventListener('click', () => handleEncounterAction('treat'));
+    document.getElementById('observe-btn')?.addEventListener('click', () => handleEncounterAction('observe'));
+    
+    // Modal background click to close
+    const helpModal = document.getElementById('help-modal');
+    if (helpModal) {
+        helpModal.addEventListener('click', (e) => {
+            if (e.target.id === 'help-modal') {
+                closeHelp();
+            }
+        });
+    }
+    
+    // Keyboard navigation support
+    document.addEventListener('keydown', handleKeyboardInput);
+}
+
+/**
+ * Initialize gradients once for better performance
+ * Cached gradients avoid recreation on every draw call
+ */
+function initializeGradients() {
+    if (!ctx) return;
+    
+    cachedGradients = {
+        sky: ctx.createLinearGradient(0, 0, 0, canvas.height)
+    };
+    
+    cachedGradients.sky.addColorStop(0, '#87ceeb');
+    cachedGradients.sky.addColorStop(1, '#98d8c8');
+}
+
+/**
+ * Main scene rendering function
+ * Draws all visual elements on the canvas
+ */
 function drawScene() {
+    if (!ctx || !canvas) return;
+    
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -63,12 +135,13 @@ function drawScene() {
     drawSceneText();
 }
 
+/**
+ * Draw the sky background using cached gradient
+ */
 function drawBackground() {
-    // Sky gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#87ceeb');
-    gradient.addColorStop(1, '#98d8c8');
-    ctx.fillStyle = gradient;
+    if (!cachedGradients?.sky) return;
+    
+    ctx.fillStyle = cachedGradients.sky;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -148,7 +221,12 @@ function drawBush(x, y) {
     ctx.fill();
 }
 
+/**
+ * Draw text overlays on the game scene
+ */
 function drawSceneText() {
+    if (!ctx) return;
+    
     ctx.fillStyle = '#333';
     ctx.font = 'bold 20px "Comic Sans MS"';
     ctx.textAlign = 'center';
@@ -158,10 +236,13 @@ function drawSceneText() {
     ctx.fillText('Click "Explore for Cats" to find new friends!', canvas.width / 2, canvas.height - 20);
 }
 
-// Explore for cats
+/**
+ * Main exploration function - costs 10 energy
+ * Triggers a random cat encounter based on rarity
+ */
 function exploreForCats() {
     if (gameState.playerEnergy < 10) {
-        alert('You need more energy! Rest a bit (refresh the page) before exploring again.');
+        alert('You need more energy! Wait for it to regenerate or refresh the page.');
         return;
     }
     
@@ -169,6 +250,11 @@ function exploreForCats() {
     gameState.playerEnergy = Math.max(0, gameState.playerEnergy - 10);
     updatePlayerStats();
     saveGameState();
+    
+    // Restart energy regeneration if it was stopped
+    if (!energyRegenInterval && gameState.playerEnergy < 100) {
+        startEnergyRegeneration();
+    }
     
     // Select a cat based on rarity
     const cat = selectRandomCat();
@@ -182,7 +268,17 @@ function exploreForCats() {
     showEncounter(cat);
 }
 
+/**
+ * Select a random cat using weighted rarity system
+ * @returns {Object|null} Cat object or null if all collected
+ */
 function selectRandomCat() {
+    // Verify CAT_BREEDS is available
+    if (!window.CAT_BREEDS || !Array.isArray(CAT_BREEDS)) {
+        console.error('CAT_BREEDS data not loaded');
+        return null;
+    }
+    
     // Filter cats by rarity and availability
     const availableCats = CAT_BREEDS.filter(cat => !gameState.collectedCats.has(cat.id));
     
@@ -215,21 +311,36 @@ function selectRandomCat() {
     return catsOfRarity[Math.floor(Math.random() * catsOfRarity.length)];
 }
 
+/**
+ * Display cat encounter panel with cat information
+ * @param {Object} cat - The cat breed object to display
+ */
 function showEncounter(cat) {
+    if (!cat) return;
+    
     gameState.currentEncounter = cat;
     
     const panel = document.getElementById('encounter-panel');
     const catDiv = document.getElementById('encounter-cat');
     const text = document.getElementById('encounter-text');
     
+    if (!panel || !catDiv || !text) {
+        console.error('Encounter panel elements not found');
+        return;
+    }
+    
     catDiv.textContent = cat.icon;
     
-    const randomFact = CAT_FACTS[Math.floor(Math.random() * CAT_FACTS.length)];
+    const randomFact = CAT_FACTS?.[Math.floor(Math.random() * CAT_FACTS.length)] || 'A wild cat appears!';
     text.innerHTML = `<strong>${cat.name}</strong><br>${randomFact}<br><em>Rarity: ${cat.stats.rarity}</em>`;
     
     panel.classList.remove('hidden');
 }
 
+/**
+ * Handle player's action choice during cat encounter
+ * @param {string} action - The action type ('approach', 'treat', or 'observe')
+ */
 function handleEncounterAction(action) {
     const cat = gameState.currentEncounter;
     if (!cat) return;
@@ -287,10 +398,26 @@ function handleEncounterAction(action) {
     gameState.currentEncounter = null;
 }
 
-// Render collection grid
+/**
+ * Render the cat collection grid
+ * Shows collected cats in color, uncollected in grayscale
+ */
 function renderCollection() {
     const grid = document.getElementById('cat-grid');
+    if (!grid) {
+        console.error('Cat grid element not found');
+        return;
+    }
+    
+    // Clear existing content
     grid.innerHTML = '';
+    
+    // Verify CAT_BREEDS is available
+    if (!window.CAT_BREEDS || !Array.isArray(CAT_BREEDS)) {
+        console.error('CAT_BREEDS data not loaded');
+        grid.innerHTML = '<p>Error loading cat data. Please refresh the page.</p>';
+        return;
+    }
     
     CAT_BREEDS.forEach(cat => {
         const card = document.createElement('div');
@@ -304,32 +431,57 @@ function renderCollection() {
                 <h3>${cat.name}</h3>
                 <span class="rarity rarity-${cat.stats.rarity}">${cat.stats.rarity}</span>
             `;
+            // Use arrow function to avoid creating new function each time
             card.addEventListener('click', () => showCatDetails(cat.id));
+            // Add keyboard accessibility
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', `View details for ${cat.name}`);
+            card.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showCatDetails(cat.id);
+                }
+            });
         } else {
             card.innerHTML = `
                 <div class="cat-icon">❓</div>
                 <h3>???</h3>
                 <span class="rarity rarity-${cat.stats.rarity}">${cat.stats.rarity}</span>
             `;
+            card.setAttribute('aria-label', `Unknown ${cat.stats.rarity} cat - not yet collected`);
         }
         
         grid.appendChild(card);
     });
 }
 
-// Show cat details modal
+/**
+ * Show detailed cat information modal
+ * @param {number} catId - ID of the cat to display
+ */
 function showCatDetails(catId) {
-    const cat = CAT_BREEDS.find(c => c.id === catId);
+    const cat = CAT_BREEDS?.find(c => c.id === catId);
     if (!cat || !gameState.collectedCats.has(catId)) return;
     
     const modal = document.getElementById('cat-details');
-    document.getElementById('cat-portrait').textContent = cat.icon;
-    document.getElementById('detail-name').textContent = cat.name;
-    document.getElementById('detail-description').textContent = cat.description;
-    document.getElementById('detail-origin').innerHTML = `<strong>Origin:</strong> ${cat.origin}<br><strong>Behavior:</strong> ${cat.behavior}<br><strong>Favorite Activity:</strong> ${cat.favoriteActivity}`;
+    const portrait = document.getElementById('cat-portrait');
+    const name = document.getElementById('detail-name');
+    const description = document.getElementById('detail-description');
+    const origin = document.getElementById('detail-origin');
+    const statsDiv = document.getElementById('detail-stats');
+    
+    if (!modal || !portrait || !name || !description || !origin || !statsDiv) {
+        console.error('Cat details modal elements not found');
+        return;
+    }
+    
+    portrait.textContent = cat.icon;
+    name.textContent = cat.name;
+    description.textContent = cat.description;
+    origin.innerHTML = `<strong>Origin:</strong> ${cat.origin}<br><strong>Behavior:</strong> ${cat.behavior}<br><strong>Favorite Activity:</strong> ${cat.favoriteActivity}`;
     
     // Render stats
-    const statsDiv = document.getElementById('detail-stats');
     statsDiv.innerHTML = '<h3>Stats</h3>';
     
     Object.entries(cat.stats).forEach(([stat, value]) => {
@@ -340,58 +492,123 @@ function showCatDetails(catId) {
         statBar.innerHTML = `
             <label>${stat.charAt(0).toUpperCase() + stat.slice(1)}</label>
             <div class="stat-bar-bg">
-                <div class="stat-bar-fill" style="width: ${value}%"></div>
+                <div class="stat-bar-fill" style="width: ${value}%" role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         `;
         statsDiv.appendChild(statBar);
     });
     
     modal.classList.remove('hidden');
+    // Focus on close button for accessibility
+    document.getElementById('close-details')?.focus();
 }
 
+/**
+ * Close the cat details modal
+ */
 function closeCatDetails() {
-    document.getElementById('cat-details').classList.add('hidden');
-}
-
-// Update player stats display
-function updatePlayerStats() {
-    document.getElementById('cats-collected').textContent = gameState.collectedCats.size;
-    document.getElementById('total-cats').textContent = CAT_BREEDS.length;
-    document.getElementById('player-energy').textContent = gameState.playerEnergy;
-}
-
-// Scroll to collection
-function scrollToCollection() {
-    document.getElementById('collection-panel').scrollIntoView({ behavior: 'smooth' });
-}
-
-// Show help modal
-function showHelp() {
-    document.getElementById('help-modal').classList.remove('hidden');
-}
-
-function closeHelp() {
-    document.getElementById('help-modal').classList.add('hidden');
-}
-
-// Energy regeneration
-setInterval(() => {
-    if (gameState.playerEnergy < 100) {
-        gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
-        updatePlayerStats();
-        saveGameState();
+    const modal = document.getElementById('cat-details');
+    if (modal) {
+        modal.classList.add('hidden');
     }
-}, 30000); // Regenerate 1 energy every 30 seconds
+}
 
-// Initialize game on load
+/**
+ * Update player stats display in the UI
+ * Shows collected cats count and energy level
+ */
+function updatePlayerStats() {
+    const catsCollected = document.getElementById('cats-collected');
+    const totalCats = document.getElementById('total-cats');
+    const playerEnergy = document.getElementById('player-energy');
+    
+    if (catsCollected) catsCollected.textContent = gameState.collectedCats.size;
+    if (totalCats && CAT_BREEDS) totalCats.textContent = CAT_BREEDS.length;
+    if (playerEnergy) playerEnergy.textContent = gameState.playerEnergy;
+}
+
+/**
+ * Smooth scroll to the collection section
+ */
+function scrollToCollection() {
+    const collectionPanel = document.getElementById('collection-panel');
+    if (collectionPanel) {
+        collectionPanel.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+/**
+ * Show the help modal
+ */
+function showHelp() {
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Focus on close button for accessibility
+        modal.querySelector('.close-btn')?.focus();
+    }
+}
+
+/**
+ * Close the help modal
+ */
+function closeHelp() {
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/**
+ * Start energy regeneration system
+ * Regenerates 1 energy every 30 seconds up to maximum of 100
+ */
+function startEnergyRegeneration() {
+    // Clear any existing interval
+    if (energyRegenInterval) {
+        clearInterval(energyRegenInterval);
+    }
+    
+    energyRegenInterval = setInterval(() => {
+        if (gameState.playerEnergy < 100) {
+            gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
+            updatePlayerStats();
+            saveGameState();
+        } else {
+            // Stop regeneration when at max to save resources
+            clearInterval(energyRegenInterval);
+            energyRegenInterval = null;
+        }
+    }, 30000); // Regenerate 1 energy every 30 seconds
+}
+
+/**
+ * Handle keyboard input for accessibility
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+function handleKeyboardInput(e) {
+    // Escape key closes modals
+    if (e.key === 'Escape') {
+        closeCatDetails();
+        closeHelp();
+        
+        const encounterPanel = document.getElementById('encounter-panel');
+        if (encounterPanel && !encounterPanel.classList.contains('hidden')) {
+            encounterPanel.classList.add('hidden');
+            gameState.currentEncounter = null;
+        }
+    }
+}
+
+// Initialize game on page load
 window.addEventListener('DOMContentLoaded', initGame);
 
-// Close modals on background click
-document.getElementById('help-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'help-modal') {
-        closeHelp();
+// Expose functions to global scope for inline handlers
+window.closeHelp = closeHelp;
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+    if (energyRegenInterval) {
+        clearInterval(energyRegenInterval);
     }
 });
-
-// Expose closeHelp to global scope for onclick handler
-window.closeHelp = closeHelp;

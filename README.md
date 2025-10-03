@@ -2,6 +2,41 @@
 
 A fun, graphical cat collection game designed for ages 10-12! Discover and care for cats in the wild, collect stats and learn about different cat breeds from around the world - just like Pokémon, but with adorable cats!
 
+[![Game Screenshot](https://img.shields.io/badge/Play-Now-brightgreen?style=for-the-badge)](#-quick-start)
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)](index.html)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](game.js)
+
+## 📚 Documentation
+
+- **[Quick Start Guide](QUICKSTART.md)** - Get started in 5 minutes
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - Technical documentation
+- **[API Reference](API.md)** - Complete function and data reference
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **[Documentation Index](DOCS_INDEX.md)** - Complete documentation overview
+
+## 📋 Table of Contents
+
+- [🐱 Cat Collector - A Wild Cat Adventure 🐱](#-cat-collector---a-wild-cat-adventure-)
+  - [📚 Documentation](#-documentation)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [🎮 Game Features](#-game-features)
+  - [🚀 Quick Start](#-quick-start)
+  - [🚀 How to Play](#-how-to-play)
+    - [Getting Started](#getting-started)
+    - [Game Mechanics](#game-mechanics)
+  - [🐾 Cat Stats Explained](#-cat-stats-explained)
+  - [🌟 Featured Breeds](#-featured-breeds)
+  - [💻 Technical Details](#-technical-details)
+    - [Files Structure](#files-structure)
+    - [Technologies Used](#technologies-used)
+    - [Browser Compatibility](#browser-compatibility)
+  - [🎨 Design Philosophy](#-design-philosophy)
+  - [🎯 Educational Value](#-educational-value)
+  - [🔮 Future Enhancements](#-future-enhancements)
+  - [📝 License](#-license)
+  - [🤝 Contributing](#-contributing)
+
 ## 🎮 Game Features
 
 - **25+ Unique Cat Breeds** - From Persian to Savannah, discover cats from all over the world!
@@ -10,6 +45,20 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 - **No Fighting** - Cats don't battle! Instead, their stats determine how you interact with them
 - **Collection & Care** - Find cats, care for them, and build your collection
 - **Educational** - Learn about real cat breeds, their origins, and behaviors
+- **Browser-Based** - No downloads required! Play directly in your web browser
+- **Auto-Save** - Your progress is automatically saved using local storage
+
+## 🚀 Quick Start
+
+**Play in 3 Easy Steps:**
+
+1. **Download** the project files (or clone the repository)
+2. **Open** `index.html` in your web browser
+3. **Start exploring** for cats and building your collection!
+
+**No installation, no dependencies, no build process required!**
+
+For detailed instructions, see the [Quick Start Guide](QUICKSTART.md).
 
 ## 🚀 How to Play
 

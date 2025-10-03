@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
+    <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -13,60 +15,60 @@
             <p class="tagline">Discover and care for wild cats around the world!</p>
         </header>
 
-        <div id="main-game">
+        <main id="main-game">
             <!-- Game Canvas -->
             <div id="game-screen">
-                <canvas id="game-canvas" width="800" height="500"></canvas>
-                <div id="game-info">
+                <canvas id="game-canvas" width="800" height="500" aria-label="Game scene showing the wild cat sanctuary"></canvas>
+                <aside id="game-info" aria-label="Player statistics">
                     <div id="player-stats">
                         <h3>Your Collection</h3>
-                        <p>Cats Found: <span id="cats-collected">0</span> / <span id="total-cats">25</span></p>
-                        <p>Energy: <span id="player-energy">100</span></p>
+                        <p>Cats Found: <span id="cats-collected" aria-live="polite">0</span> / <span id="total-cats">25</span></p>
+                        <p>Energy: <span id="player-energy" aria-live="polite">100</span></p>
                     </div>
-                </div>
+                </aside>
             </div>
 
             <!-- Cat Collection Display -->
-            <div id="collection-panel">
+            <section id="collection-panel" aria-label="Your cat collection">
                 <h2>Your Cat Collection</h2>
-                <div id="cat-grid"></div>
-            </div>
+                <div id="cat-grid" role="grid" aria-label="Grid of cat cards"></div>
+            </section>
 
             <!-- Cat Details Panel -->
-            <div id="cat-details" class="hidden">
-                <button id="close-details" class="close-btn">×</button>
-                <div id="cat-portrait"></div>
+            <div id="cat-details" class="hidden" role="dialog" aria-labelledby="detail-name" aria-modal="true">
+                <button id="close-details" class="close-btn" aria-label="Close cat details">×</button>
+                <div id="cat-portrait" aria-hidden="true"></div>
                 <h2 id="detail-name"></h2>
                 <p id="detail-description"></p>
-                <div id="detail-stats"></div>
+                <div id="detail-stats" aria-label="Cat statistics"></div>
                 <div id="detail-origin"></div>
             </div>
 
             <!-- Wild Cat Encounter -->
-            <div id="encounter-panel" class="hidden">
-                <h2>A Wild Cat Appears!</h2>
-                <div id="encounter-cat"></div>
+            <div id="encounter-panel" class="hidden" role="dialog" aria-labelledby="encounter-title" aria-modal="true">
+                <h2 id="encounter-title">A Wild Cat Appears!</h2>
+                <div id="encounter-cat" aria-hidden="true"></div>
                 <p id="encounter-text"></p>
-                <div id="encounter-actions">
-                    <button id="approach-btn" class="action-btn">Approach Gently</button>
-                    <button id="offer-treat-btn" class="action-btn">Offer Treat</button>
-                    <button id="observe-btn" class="action-btn">Observe</button>
+                <div id="encounter-actions" role="group" aria-label="Choose how to approach the cat">
+                    <button id="approach-btn" class="action-btn" aria-label="Approach the cat gently">🤝 Approach Gently</button>
+                    <button id="offer-treat-btn" class="action-btn" aria-label="Offer the cat a treat">🍖 Offer Treat</button>
+                    <button id="observe-btn" class="action-btn" aria-label="Observe the cat from a distance">👀 Observe</button>
                 </div>
             </div>
 
             <!-- Controls -->
-            <div id="controls">
-                <button id="explore-btn" class="main-btn">Explore for Cats</button>
-                <button id="collection-btn" class="main-btn">View Collection</button>
-                <button id="help-btn" class="main-btn">Help</button>
-            </div>
-        </div>
+            <nav id="controls" aria-label="Main game controls">
+                <button id="explore-btn" class="main-btn" aria-label="Explore the wilderness to find cats">🔍 Explore for Cats</button>
+                <button id="collection-btn" class="main-btn" aria-label="View your cat collection">📚 View Collection</button>
+                <button id="help-btn" class="main-btn" aria-label="Show help information">❓ Help</button>
+            </nav>
+        </main>
 
         <!-- Help Modal -->
-        <div id="help-modal" class="modal hidden">
+        <div id="help-modal" class="modal hidden" role="dialog" aria-labelledby="help-title" aria-modal="true">
             <div class="modal-content">
-                <button class="close-btn" onclick="closeHelp()">×</button>
-                <h2>How to Play</h2>
+                <button class="close-btn" onclick="closeHelp()" aria-label="Close help modal">×</button>
+                <h2 id="help-title">How to Play</h2>
                 <div class="help-section">
                     <h3>🎯 Goal</h3>
                     <p>Discover and collect all 25 unique cat breeds from around the world!</p>
@@ -86,6 +88,16 @@
                 <div class="help-section">
                     <h3>💝 Caring for Cats</h3>
                     <p>Choose the right action based on the cat's personality. High friendliness cats respond well to direct approach. Shy cats prefer observation first!</p>
+                </div>
+                <div class="help-section">
+                    <h3>⚡ Energy System</h3>
+                    <p>Each exploration costs 10 energy. Your energy regenerates 1 point every 30 seconds, up to a maximum of 100.</p>
+                </div>
+                <div class="help-section">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <p><kbd>Escape</kbd> - Close modals<br>
+                    <kbd>Enter</kbd> or <kbd>Space</kbd> - Select focused cat card<br>
+                    <kbd>Tab</kbd> - Navigate between elements</p>
                 </div>
             </div>
         </div>
