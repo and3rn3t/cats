@@ -57,6 +57,44 @@ git push origin main
 # Visit https://cats.andernet.dev
 ```
 
+### Direct Deployment with Wrangler CLI
+
+For instant deployment from your local machine:
+
+```bash
+# Quick deploy (with uncommitted changes)
+npm run deploy
+
+# Production deploy (from main branch)
+npm run deploy:prod
+
+# Preview deployment (test branch)
+npm run deploy:preview
+
+# Or use wrangler directly
+wrangler pages deploy . --project-name=cat-collector
+```
+
+**First-time setup:**
+
+```bash
+# 1. Install Wrangler globally
+npm install -g wrangler
+
+# 2. Authenticate with Cloudflare
+wrangler login
+
+# 3. Deploy!
+npm run deploy
+```
+
+**Advantages of Wrangler:**
+- ✅ Deploy instantly from local machine
+- ✅ No need to commit/push to GitHub
+- ✅ Perfect for quick testing
+- ✅ Creates preview URLs for testing
+- ✅ Bypasses GitHub Actions delay
+
 ## Features
 
 ### ✅ Enabled Features

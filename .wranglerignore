@@ -1,0 +1,33 @@
+# Wrangler Ignore File
+
+# Excludes files from Cloudflare Pages deployment
+
+# Git
+
+.git/
+.gitignore
+
+# Documentation (not needed in production)
+
+docs/
+README.md
+CONTRIBUTING.md
+LICENSE
+
+# Development files
+
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Node modules (if any)
+
+node_modules/
+package-lock.json
+package.json
+
+# Wrangler config
+
+wrangler.toml
+.wranglerignore

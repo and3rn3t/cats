@@ -1,0 +1,27 @@
+{
+  "name": "cat-collector",
+  "version": "2.3.2",
+  "description": "Cat Collector - A fun, educational game for ages 10-12",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "deploy": "wrangler pages deploy . --project-name=cat-collector --commit-dirty=true",
+    "deploy:prod": "wrangler pages deploy . --project-name=cat-collector --branch=main",
+    "preview": "wrangler pages deploy . --project-name=cat-collector --branch=preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/and3rn3t/cats"
+  },
+  "keywords": [
+    "game",
+    "educational",
+    "cats",
+    "vanilla-js",
+    "browser-game"
+  ],
+  "author": "and3rn3t",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.42.0"
+  }
+}
