@@ -166,11 +166,18 @@ function setupEventListeners() {
     document.getElementById('offer-treat-btn')?.addEventListener('click', () => handleEncounterAction('treat'));
     document.getElementById('observe-btn')?.addEventListener('click', () => handleEncounterAction('observe'));
     
-    // Modal background click to close
+    // Dialog backdrop click to close (for help modal)
     const helpModal = document.getElementById('help-modal');
     if (helpModal) {
         helpModal.addEventListener('click', (e) => {
-            if (e.target.id === 'help-modal') {
+            // Close if clicking on the dialog backdrop (not the content)
+            const rect = helpModal.getBoundingClientRect();
+            if (
+                e.clientX < rect.left ||
+                e.clientX > rect.right ||
+                e.clientY < rect.top ||
+                e.clientY > rect.bottom
+            ) {
                 closeHelp();
             }
         });
@@ -426,6 +433,7 @@ function showEncounter(cat) {
     if (!cat) return;
     
     gameState.currentEncounter = cat;
+    gameState.currentEncounterAttempts = 0; // Reset attempt counter
     
     const panel = document.getElementById('encounter-panel');
     const catDiv = document.getElementById('encounter-cat');
@@ -439,9 +447,26 @@ function showEncounter(cat) {
     catDiv.textContent = cat.icon;
     
     const randomFact = CAT_FACTS?.[Math.floor(Math.random() * CAT_FACTS.length)] || 'A wild cat appears!';
-    text.innerHTML = `<strong>${cat.name}</strong><br>${randomFact}<br><em>Rarity: ${cat.stats.rarity}</em>`;
     
-    panel.classList.remove('hidden');
+    // IMPROVED: Show cat stats to help player make strategic decision
+    const statsHTML = `
+        <div style="background: #f0f0f0; border: 2px solid #333; border-radius: 8px; padding: 10px; margin: 10px 0;">
+            <strong>📊 Cat Stats - Choose Wisely!</strong><br>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; font-size: 0.9em;">
+                <span>😊 Friendliness: <strong>${cat.stats.friendliness}</strong></span>
+                <span>⚡ Energy: <strong>${cat.stats.energy}</strong></span>
+                <span>🧠 Intelligence: <strong>${cat.stats.intelligence}</strong></span>
+                <span>✨ Rarity: <strong>${cat.stats.rarity}</strong></span>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.85em; color: #666; font-style: italic;">
+                💡 Tip: High friendliness → Approach | Low energy → Treat | High intelligence → Observe
+            </div>
+        </div>
+    `;
+    
+    text.innerHTML = `<strong>${cat.name}</strong><br>${randomFact}<br>${statsHTML}`;
+    
+    panel.showModal();
 }
 
 /**
@@ -452,8 +477,14 @@ function handleEncounterAction(action) {
     const cat = gameState.currentEncounter;
     if (!cat) return;
     
-    const isFirstAttempt = !gameState.currentEncounterAttempted;
-    gameState.currentEncounterAttempted = true;
+    // Track attempt count for this specific encounter
+    if (!gameState.currentEncounterAttempts) {
+        gameState.currentEncounterAttempts = 0;
+    }
+    gameState.currentEncounterAttempts++;
+    
+    const attemptNumber = gameState.currentEncounterAttempts;
+    const isFirstAttempt = attemptNumber === 1;
     
     let success = false;
     let message = '';
@@ -462,30 +493,89 @@ function handleEncounterAction(action) {
     if (action === 'observe') gameState.observeCount = (gameState.observeCount || 0) + 1;
     if (action === 'approach') gameState.approachCount = (gameState.approachCount || 0) + 1;
     
-    // Calculate success based on cat stats and action
-    const baseChance = 0.5;
+    // HARDER: After 2 failed attempts, cat runs away permanently for this exploration
+    if (attemptNumber > 2) {
+        alert(`😿 ${cat.name} got too nervous and ran away!\n\nYou'll need to explore again to find another cat.\n\n💡 Tip: Choose wisely - you only get 2 attempts per cat!`);
+        document.getElementById('encounter-panel')?.close();
+        gameState.currentEncounter = null;
+        gameState.currentEncounterAttempts = 0;
+        return;
+    }
+    
+    // HARDER: Calculate success based on cat stats and action with lower base rates
+    // Base success rate reduced from 50% to 30%
+    const baseChance = 0.30;
     let successChance = baseChance;
+    let strategyBonus = 0;
     
     switch (action) {
         case 'approach':
-            // Works better with friendly cats
-            successChance = baseChance + (cat.stats.friendliness / 200);
-            message = cat.stats.friendliness > 80 ? 
-                `${cat.name} happily comes to you! 💕` :
-                `${cat.name} is a bit shy but warms up to you! 😊`;
+            // HARDER: Only works well with VERY friendly cats (>80)
+            // Reduced from +0.5 max to +0.35 max
+            if (cat.stats.friendliness > 80) {
+                strategyBonus = (cat.stats.friendliness - 80) / 100; // Up to +0.2
+                successChance = baseChance + strategyBonus;
+                message = `${cat.name} happily comes to you! You chose wisely! 💕`;
+            } else if (cat.stats.friendliness > 50) {
+                strategyBonus = (cat.stats.friendliness - 50) / 200; // Up to +0.15
+                successChance = baseChance + strategyBonus;
+                message = `${cat.name} cautiously approaches... 😊`;
+            } else {
+                // Penalty for shy cats
+                successChance = baseChance * 0.5; // Only 15% chance!
+                message = `${cat.name} seems too shy for direct approach! �`;
+            }
             break;
             
         case 'treat':
-            // Always good chance, but higher with less energetic cats
-            successChance = 0.7 + ((100 - cat.stats.energy) / 200);
-            message = `${cat.name} can't resist the treat! 🐟`;
+            // HARDER: Works best with LOW energy cats (<40)
+            if (cat.stats.energy < 40) {
+                strategyBonus = (40 - cat.stats.energy) / 100; // Up to +0.4
+                successChance = 0.5 + strategyBonus; // Up to 90%!
+                message = `${cat.name} is too tired to resist the treat! Perfect choice! 🐟`;
+            } else if (cat.stats.energy < 70) {
+                strategyBonus = (70 - cat.stats.energy) / 150;
+                successChance = 0.4 + strategyBonus;
+                message = `${cat.name} takes the treat! 🐟`;
+            } else {
+                // High energy cats are hard to tempt
+                successChance = baseChance * 0.6; // Only 18%!
+                message = `${cat.name} is too energetic to care about treats! 🏃`;
+            }
             break;
             
         case 'observe':
-            // Works better with shy/intelligent cats
-            successChance = baseChance + (cat.stats.intelligence / 200);
-            message = `${cat.name} appreciates your patience and trusts you! 🌟`;
+            // HARDER: Works best with VERY intelligent cats (>75)
+            if (cat.stats.intelligence > 75) {
+                strategyBonus = (cat.stats.intelligence - 75) / 100; // Up to +0.25
+                successChance = 0.45 + strategyBonus; // Up to 70%
+                message = `${cat.name} appreciates your patience and wisdom! 🌟`;
+            } else if (cat.stats.intelligence > 50) {
+                strategyBonus = (cat.stats.intelligence - 50) / 150;
+                successChance = 0.35 + strategyBonus;
+                message = `${cat.name} slowly trusts you... 👀`;
+            } else {
+                // Low intelligence cats don't understand patience
+                successChance = baseChance * 0.7; // Only 21%!
+                message = `${cat.name} seems confused by your waiting... 🤔`;
+            }
             break;
+    }
+    
+    // HARDER: Rarity affects difficulty
+    // Legendary cats are much harder to collect
+    const rarityPenalty = {
+        'common': 1.0,
+        'uncommon': 0.95,
+        'rare': 0.85,
+        'epic': 0.70,
+        'legendary': 0.50  // Legendary cats are MUCH harder!
+    };
+    successChance *= (rarityPenalty[cat.stats.rarity] || 1.0);
+    
+    // Small bonus for repeat attempts (they're getting used to you)
+    if (attemptNumber > 1) {
+        successChance += 0.05; // +5% on second attempt
     }
     
     success = Math.random() < successChance;
@@ -531,22 +621,55 @@ function handleEncounterAction(action) {
             updateAchievements(gameState);
         }
         
-        alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!`);
+        // Show strategy feedback
+        let strategyFeedback = '';
+        if (strategyBonus > 0.2) {
+            strategyFeedback = '\n\n🎯 EXCELLENT STRATEGY! You chose the perfect approach!';
+        } else if (strategyBonus > 0.1) {
+            strategyFeedback = '\n\n👍 Good choice! Your strategy worked!';
+        } else if (strategyBonus > 0) {
+            strategyFeedback = '\n\n✓ That worked, but there might be a better approach next time.';
+        } else {
+            strategyFeedback = '\n\n🍀 Lucky! But consider the cat\'s stats next time.';
+        }
+        
+        alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!${strategyFeedback}`);
         
         // Close encounter and update display
-        document.getElementById('encounter-panel').classList.add('hidden');
+        document.getElementById('encounter-panel')?.close();
         renderCollection();
         updatePlayerStats();
         
         // Show the new cat details with enhanced portrait
         setTimeout(() => showCatDetails(cat.id), 500);
+        
+        // Reset encounter state
+        gameState.currentEncounter = null;
+        gameState.currentEncounterAttempts = 0;
     } else {
-        alert(`${cat.name} runs away! Try a different approach next time. 🏃‍♂️`);
-        document.getElementById('encounter-panel').classList.add('hidden');
+        // Failed attempt - give helpful feedback
+        let failureAdvice = '\n\n💡 ';
+        if (cat.stats.friendliness > 80) {
+            failureAdvice += 'This cat is very friendly - try approaching directly!';
+        } else if (cat.stats.energy < 40) {
+            failureAdvice += 'This cat looks tired - maybe offer a treat?';
+        } else if (cat.stats.intelligence > 75) {
+            failureAdvice += 'This cat is intelligent - try observing first!';
+        } else if (cat.stats.energy > 70) {
+            failureAdvice += 'This cat is too energetic - treats probably won\'t work!';
+        } else {
+            failureAdvice += 'Study the cat\'s stats carefully!';
+        }
+        
+        if (attemptNumber === 1) {
+            alert(`${cat.name} isn't convinced... but you can try ONE more time!${failureAdvice}\n\n⚠️ Warning: If you fail again, the cat will run away!`);
+        } else {
+            alert(`${cat.name} runs away! 🏃‍♂️\n\nYou'll need to explore again to find another cat.${failureAdvice}`);
+            document.getElementById('encounter-panel')?.close();
+            gameState.currentEncounter = null;
+            gameState.currentEncounterAttempts = 0;
+        }
     }
-    
-    gameState.currentEncounter = null;
-    gameState.currentEncounterAttempted = false;
 }
 
 /**
@@ -661,7 +784,7 @@ function showCatDetails(catId) {
         });
     }
     
-    modal.classList.remove('hidden');
+    modal.showModal();
     // Focus on close button for accessibility
     document.getElementById('close-details')?.focus();
 }
@@ -672,7 +795,7 @@ function showCatDetails(catId) {
 function closeCatDetails() {
     const modal = document.getElementById('cat-details');
     if (modal) {
-        modal.classList.add('hidden');
+        modal.close();
     }
 }
 
@@ -719,7 +842,7 @@ function scrollToCollection() {
 function showHelp() {
     const modal = document.getElementById('help-modal');
     if (modal) {
-        modal.classList.remove('hidden');
+        modal.showModal();
         // Focus on close button for accessibility
         modal.querySelector('.close-btn')?.focus();
     }
@@ -731,7 +854,7 @@ function showHelp() {
 function closeHelp() {
     const modal = document.getElementById('help-modal');
     if (modal) {
-        modal.classList.add('hidden');
+        modal.close();
     }
 }
 
@@ -760,7 +883,7 @@ function startEnergyRegeneration() {
             clearInterval(energyRegenInterval);
             energyRegenInterval = null;
         }
-    }, 30000); // Regenerate 1 energy every 30 seconds
+    }, 45000); // HARDER: Regenerate 1 energy every 45 seconds (was 30)
 }
 
 /**
@@ -768,16 +891,17 @@ function startEnergyRegeneration() {
  * @param {KeyboardEvent} e - The keyboard event
  */
 function handleKeyboardInput(e) {
-    // Escape key closes modals
+    // Escape key closes modals (dialog elements handle Escape natively, but we also close side panels)
     if (e.key === 'Escape') {
-        closeCatDetails();
-        closeHelp();
+        // Native <dialog> elements close automatically on Escape, 
+        // but we keep these calls for side panels and consistency
         closeAchievements();
         closeAnalytics();
         
+        // For encounter panel, check if it's open using the dialog API
         const encounterPanel = document.getElementById('encounter-panel');
-        if (encounterPanel && !encounterPanel.classList.contains('hidden')) {
-            encounterPanel.classList.add('hidden');
+        if (encounterPanel?.open) {
+            encounterPanel.close();
             gameState.currentEncounter = null;
         }
     }

@@ -10,6 +10,9 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 ## 📚 Documentation
 
 - **[Quick Start Guide](QUICKSTART.md)** - Get started in 5 minutes
+- **[Strategy Guide](docs/STRATEGY_QUICK_REFERENCE.md)** - v2.1.0 Challenge Mode strategies! 🎯
+- **[Challenge Mode Details](docs/CHALLENGE_MODE_V2.1.0.md)** - Complete v2.1.0 difficulty overhaul
+- **[CSS Design System](docs/CSS_DESIGN_SYSTEM.md)** - v2.1.2 Standardized styling guide 🎨
 - **[Developer Guide](DEVELOPER_GUIDE.md)** - Technical documentation
 - **[API Reference](API.md)** - Complete function and data reference
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
@@ -40,9 +43,14 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 ## 🎮 Game Features
 
 - **25+ Unique Cat Breeds** - From Persian to Savannah, discover cats from all over the world!
+- **🆕 Strategic Challenge Mode (v2.1.0)** - Make meaningful decisions! Wrong choices = real consequences
 - **Beautiful Graphic Novel Style** - Comic-book inspired visuals that are colorful and engaging
 - **Stat-Based Gameplay** - Each cat has unique stats: Cuteness, Friendliness, Energy, Intelligence, and Rarity
+- **🆕 2-Attempt Limit** - Choose wisely - you only get 2 tries before cats run away!
 - **No Fighting** - Cats don't battle! Instead, their stats determine how you interact with them
+- **🆕 Achievement System** - 20 achievements to unlock across 5 rarity tiers
+- **🆕 Visual Effects** - Particle system and enhanced graphics
+- **🆕 Analytics Dashboard** - Track your collection progress and stats
 - **Collection & Care** - Find cats, care for them, and build your collection
 - **Educational** - Learn about real cat breeds, their origins, and behaviors
 - **Browser-Based** - No downloads required! Play directly in your web browser
@@ -66,15 +74,22 @@ For detailed instructions, see the [Quick Start Guide](QUICKSTART.md).
 
 1. Open `index.html` in your web browser
 2. Click "Explore for Cats" to venture into the wild
-3. When you encounter a cat, choose the right action:
-   - **Approach Gently** - Works well with friendly cats
-   - **Offer Treat** - Always a good option, especially for calm cats
-   - **Observe** - Best for shy or intelligent cats
-4. Successfully befriend cats to add them to your collection!
+3. When you encounter a cat, **study their stats carefully!** 📊
+4. Choose the right action based on their stats:
+   - **Approach Gently** - Best for cats with HIGH Friendliness (>80)
+   - **Offer Treat** - Perfect for cats with LOW Energy (<40)
+   - **Observe** - Works well with HIGH Intelligence (>75)
+5. ⚠️ **You only get 2 attempts!** Choose poorly and the cat runs away!
+6. Successfully befriend cats to add them to your collection!
+
+**New to v2.1.0?** Check the [Strategy Guide](docs/STRATEGY_QUICK_REFERENCE.md) for complete tips!
 
 ### Game Mechanics
 
-- **Energy System**: You have 100 energy. Exploring costs 10 energy. Energy regenerates over time.
+- **Energy System**: You have 100 energy. Exploring costs 10 energy. Energy regenerates 1 point every 45 seconds.
+- **2-Attempt Limit**: Each cat encounter gives you only 2 chances. Choose wisely or they'll run away!
+- **Strategic Success Rates**: Base chance is 30%. Right strategy can boost to 70-90%, wrong strategy drops to 15-30%!
+- **Rarity Difficulty**: Legendary cats are 50% harder to collect, even with perfect strategy!
 - **Rarity System**: Cats come in 5 rarity levels:
   - Common (40% chance)
   - Uncommon (30% chance)
