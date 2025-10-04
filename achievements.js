@@ -322,8 +322,8 @@ function updateAchievements(state) {
  * @param {Object} state - Game state
  */
 function renderAchievementsPanel(state) {
-    const panel = document.getElementById('achievements-panel');
-    if (!panel) return;
+    const content = document.getElementById('achievements-content');
+    if (!content) return;
     
     const unlockedAchievements = state.unlockedAchievements || new Set();
     const totalAchievements = ACHIEVEMENTS.length;
@@ -331,7 +331,6 @@ function renderAchievementsPanel(state) {
     
     let html = `
         <div class="achievements-header">
-            <h3>🏆 Achievements</h3>
             <p class="achievement-progress">${unlockedCount} / ${totalAchievements} Unlocked</p>
         </div>
         <div class="achievements-grid">
@@ -353,7 +352,7 @@ function renderAchievementsPanel(state) {
     });
     
     html += '</div>';
-    panel.innerHTML = html;
+    content.innerHTML = html;
 }
 
 // Expose functions globally

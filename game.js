@@ -55,6 +55,10 @@ function initGame() {
     console.log('✅ Game initializing with', window.CAT_BREEDS.length, 'cat breeds');
 
     loadGameState();
+    
+    // Check if this is the first time playing
+    const isFirstTime = gameState.collectedCats.size === 0 && gameState.explorationCount === 0;
+    
     renderCollection();
     updatePlayerStats();
     initializeGradients();
@@ -68,6 +72,11 @@ function initGame() {
     }
     if (window.updateAchievements) {
         updateAchievements(gameState);
+    }
+    
+    // Show welcome message for first-time players
+    if (isFirstTime) {
+        setTimeout(showWelcomeMessage, 500);
     }
 }
 
@@ -139,7 +148,18 @@ function setupEventListeners() {
     document.getElementById('achievements-btn')?.addEventListener('click', showAchievements);
     document.getElementById('analytics-btn')?.addEventListener('click', showAnalytics);
     document.getElementById('help-btn')?.addEventListener('click', showHelp);
+    document.getElementById('reset-btn')?.addEventListener('click', resetGame);
     document.getElementById('close-details')?.addEventListener('click', closeCatDetails);
+    
+    // Close panel buttons
+    document.querySelectorAll('.close-panel-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const panel = e.target.closest('.side-panel');
+            if (panel) {
+                panel.classList.add('hidden');
+            }
+        });
+    });
     
     // Encounter action buttons
     document.getElementById('approach-btn')?.addEventListener('click', () => handleEncounterAction('approach'));
@@ -287,13 +307,28 @@ function drawBush(x, y) {
 function drawSceneText() {
     if (!ctx) return;
     
+    // Main title
     ctx.fillStyle = '#333';
-    ctx.font = 'bold 20px "Comic Sans MS"';
+    ctx.font = 'bold 24px "Comic Sans MS"';
     ctx.textAlign = 'center';
-    ctx.fillText('🌳 The Wild Cat Sanctuary 🌳', canvas.width / 2, 30);
+    ctx.fillText('🌳 The Wild Cat Sanctuary 🌳', canvas.width / 2, 35);
     
-    ctx.font = '16px "Comic Sans MS"';
-    ctx.fillText('Click "Explore for Cats" to find new friends!', canvas.width / 2, canvas.height - 20);
+    // Instruction text - make it more visible
+    ctx.font = 'bold 18px "Comic Sans MS"';
+    ctx.fillStyle = '#f5576c';
+    ctx.fillText('👇 Click "Explore for Cats" below! 👇', canvas.width / 2, canvas.height - 25);
+    
+    // Show stats hint
+    if (gameState.collectedCats.size === 0) {
+        ctx.font = 'italic 16px "Comic Sans MS"';
+        ctx.fillStyle = '#666';
+        ctx.fillText('Start your adventure to discover 25 unique cat breeds!', canvas.width / 2, canvas.height / 2 + 20);
+    } else {
+        // Show collection progress
+        ctx.font = 'bold 16px "Comic Sans MS"';
+        ctx.fillStyle = '#4caf50';
+        ctx.fillText(`${gameState.collectedCats.size} / 25 cats collected!`, canvas.width / 2, canvas.height / 2 + 20);
+    }
 }
 
 /**
@@ -660,8 +695,21 @@ function updatePlayerStats() {
  */
 function scrollToCollection() {
     const collectionPanel = document.getElementById('collection-panel');
-    if (collectionPanel) {
-        collectionPanel.scrollIntoView({ behavior: 'smooth' });
+    const collectionBtn = document.getElementById('collection-btn');
+    
+    if (!collectionPanel) return;
+    
+    // Toggle visibility
+    if (collectionPanel.classList.contains('visible')) {
+        collectionPanel.classList.remove('visible');
+        if (collectionBtn) collectionBtn.textContent = '📚 View Collection';
+    } else {
+        collectionPanel.classList.add('visible');
+        if (collectionBtn) collectionBtn.textContent = '📚 Hide Collection';
+        // Scroll to it smoothly
+        setTimeout(() => {
+            collectionPanel.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
     }
 }
 
@@ -778,6 +826,59 @@ function closeAnalytics() {
     const panel = document.getElementById('analytics-panel');
     if (panel) {
         panel.classList.add('hidden');
+    }
+}
+
+/**
+ * Show welcome message for first-time players
+ */
+function showWelcomeMessage() {
+    const message = `
+🐱 Welcome to Cat Collector! 🐱
+
+You're about to embark on an adventure to discover 25 unique cat breeds from around the world!
+
+🔍 Click "Explore for Cats" to start finding cats
+⚡ Each exploration costs 10 energy
+💚 Energy regenerates over time (1 point every 30 seconds)
+🏆 Unlock achievements as you play
+📊 Track your progress in Analytics
+
+Ready to meet your first cat?
+    `;
+    
+    if (confirm(message + '\n\nClick OK to get started!')) {
+        // Give player a boost by showing them their first cat immediately
+        exploreForCats();
+    }
+}
+
+/**
+ * Reset game progress - clears all saved data
+ */
+function resetGame() {
+    const confirmReset = confirm('⚠️ Are you sure you want to reset all progress?\n\nThis will:\n• Delete all collected cats\n• Reset achievements\n• Clear analytics data\n• Reset energy to 100\n\nThis action cannot be undone!');
+    
+    if (!confirmReset) return;
+    
+    const doubleConfirm = confirm('🚨 FINAL WARNING 🚨\n\nAre you absolutely sure? All progress will be permanently deleted!');
+    
+    if (!doubleConfirm) return;
+    
+    try {
+        // Clear localStorage
+        localStorage.removeItem('catCollectorGame');
+        localStorage.removeItem('catCollectorAchievements');
+        localStorage.removeItem('catCollectorAnalytics');
+        
+        // Show success message
+        alert('✅ Game reset successfully!\n\nThe page will now reload.');
+        
+        // Reload the page to reinitialize everything
+        window.location.reload();
+    } catch (error) {
+        console.error('Failed to reset game:', error);
+        alert('❌ Failed to reset game. Please try clearing your browser cache manually.');
     }
 }
 

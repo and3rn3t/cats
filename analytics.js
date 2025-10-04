@@ -177,8 +177,8 @@ function formatTime(milliseconds) {
  * @param {Object} state - Game state
  */
 function renderAnalyticsDashboard(state) {
-    const panel = document.getElementById('analytics-panel');
-    if (!panel) return;
+    const content = document.getElementById('analytics-content');
+    if (!content) return;
     
     if (!state.analytics) initAnalytics(state);
     updatePlayTime(state);
@@ -209,10 +209,6 @@ function renderAnalyticsDashboard(state) {
     });
     
     const html = `
-        <div class="analytics-header">
-            <h3>📊 Analytics Dashboard</h3>
-        </div>
-        
         <div class="analytics-grid">
             <!-- Summary Stats -->
             <div class="stat-card primary">
@@ -302,7 +298,7 @@ function renderAnalyticsDashboard(state) {
         </div>
     `;
     
-    panel.innerHTML = html;
+    content.innerHTML = html;
 }
 
 /**
