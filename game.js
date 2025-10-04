@@ -80,6 +80,9 @@ function initGame() {
     if (window.updateAchievements) {
         updateAchievements(gameState);
     }
+    if (window.initMinigames) {
+        initMinigames();
+    }
     
     // Show welcome message for first-time players
     if (isFirstTime) {
@@ -840,6 +843,21 @@ function showCatDetails(catId) {
             statsDiv.appendChild(statBar);
         });
     }
+    
+    // Add play mini-games button
+    const playButton = document.createElement('button');
+    playButton.className = 'action-btn';
+    playButton.style.marginTop = '16px';
+    playButton.innerHTML = '🎮 Play Mini-Games';
+    playButton.setAttribute('aria-label', `Play mini-games with ${cat.name}`);
+    playButton.onclick = () => {
+        if (window.playButtonClick) playButtonClick();
+        modal.close();
+        if (window.showMinigameSelection) {
+            showMinigameSelection(cat);
+        }
+    };
+    statsDiv.appendChild(playButton);
     
     modal.showModal();
     // Focus on close button for accessibility

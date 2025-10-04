@@ -6,7 +6,7 @@
     <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
     <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
-    <link rel="stylesheet" href="styles.css?v=2.3.2">
+    <link rel="stylesheet" href="styles.css?v=2.4.0">
 </head>
 <body>
     <div id="game-container">
@@ -138,13 +138,55 @@
                 </div>
             </div>
         </dialog>
+
+        <!-- Mini-Games Modal -->
+        <dialog id="minigame-modal" aria-labelledby="minigame-title">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeMinigameModal()" aria-label="Close mini-games">×</button>
+                <h2 id="minigame-title">🎮 Play with <span id="minigame-cat-icon">😺</span> <span id="minigame-cat-name">Cat</span></h2>
+                
+                <!-- Game Selection Screen -->
+                <div id="game-selection">
+                    <div class="game-selection-grid">
+                        <button class="game-select-btn" onclick="startMinigame('followTheTreat')" aria-label="Play Follow the Treat">
+                            <span class="game-icon">🍖</span>
+                            <h3>Follow the Treat</h3>
+                            <p>Memory game - repeat the sequence!</p>
+                            <p class="high-score">High Score: <span id="high-score-treat">0</span></p>
+                        </button>
+                        
+                        <button class="game-select-btn" onclick="startMinigame('catToyChase')" aria-label="Play Cat Toy Chase">
+                            <span class="game-icon">🎾</span>
+                            <h3>Cat Toy Chase</h3>
+                            <p>Timing game - catch the toy!</p>
+                            <p class="high-score">High Score: <span id="high-score-chase">0</span></p>
+                        </button>
+                        
+                        <button class="game-select-btn" onclick="startMinigame('hideAndSeek')" aria-label="Play Hide and Seek">
+                            <span class="game-icon">🙈</span>
+                            <h3>Hide and Seek</h3>
+                            <p>Find the hiding cat!</p>
+                            <p class="high-score">High Score: <span id="high-score-seek">0</span></p>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Game Play Screen -->
+                <div id="game-screen" style="display: none;">
+                    <div id="game-area">
+                        <!-- Game content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </dialog>
     </div>
 
     <script src="catData.js?v=2.0.1"></script>
     <script src="achievements.js?v=2.0.6"></script>
     <script src="visuals.js?v=2.0.0"></script>
     <script src="analytics.js?v=2.0.6"></script>
-    <script src="audio.js?v=2.3.2"></script>
-    <script src="game.js?v=2.3.2"></script>
+    <script src="audio.js?v=2.4.0"></script>
+    <script src="minigames.js?v=2.4.0"></script>
+    <script src="game.js?v=2.4.0"></script>
 </body>
 </html>

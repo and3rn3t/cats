@@ -1540,6 +1540,276 @@ kbd {
     top: 0;
 }
 
+/* ============================================================================
+   Mini-Games Styles
+   ============================================================================ */
+
+/* Mini-game Modal */
+dialog#minigame-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-light);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+}
+
+dialog#minigame-modal[open] {
+    display: block;
+}
+
+#minigame-modal .modal-content {
+    width: 100%;
+}
+
+#minigame-modal h2 {
+    color: var(--color-purple);
+    text-align: center;
+    margin-bottom: var(--space-md);
+    font-size: var(--font-xl);
+}
+
+/* Game Selection Grid */
+.game-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.game-select-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    color: white;
+    text-align: center;
+    font-family: var(--font-main);
+}
+
+.game-select-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.game-select-btn:active {
+    transform: translateY(-2px);
+}
+
+.game-select-btn .game-icon {
+    font-size: var(--font-3xl);
+    display: block;
+    margin-bottom: var(--space-xs);
+}
+
+.game-select-btn h3 {
+    font-size: var(--font-md);
+    margin: var(--space-xs) 0;
+    color: white;
+}
+
+.game-select-btn p {
+    font-size: var(--font-sm);
+    margin: var(--space-xs) 0;
+    opacity: 0.9;
+}
+
+.game-select-btn .high-score {
+    margin-top: var(--space-sm);
+    font-weight: bold;
+    font-size: var(--font-md);
+    opacity: 1;
+}
+
+/* Game Screen */
+#minigame-modal #game-screen {
+    min-height: 400px;
+}
+
+.minigame-header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.minigame-header h3 {
+    font-size: var(--font-xl);
+    color: var(--color-purple);
+    margin-bottom: var(--space-xs);
+}
+
+.minigame-header p {
+    font-size: var(--font-md);
+    color: var(--color-dark);
+    margin: var(--space-xs) 0;
+}
+
+.minigame-score {
+    font-size: var(--font-lg);
+    font-weight: bold;
+    color: var(--color-purple);
+}
+
+.minigame-status {
+    text-align: center;
+    margin: var(--space-lg) 0;
+    font-size: var(--font-lg);
+    font-weight: bold;
+    color: var(--color-purple);
+}
+
+.minigame-result {
+    font-size: var(--font-xl);
+    font-weight: bold;
+    color: var(--color-purple);
+    padding: var(--space-md);
+    background: var(--color-yellow);
+    border-radius: var(--radius-md);
+    margin: var(--space-lg) 0;
+}
+
+/* Game 1: Follow the Treat */
+.treat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin: var(--space-lg) 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.treat-button {
+    aspect-ratio: 1;
+    font-size: var(--font-3xl);
+    background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+}
+
+.treat-button:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+.treat-button.treat-active {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(245, 175, 25, 0.8);
+    background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+}
+
+/* Game 2: Cat Toy Chase */
+.chase-area {
+    position: relative;
+    background: linear-gradient(to bottom, #87ceeb 0%, #98d8c8 50%, #90ee90 100%);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-lg);
+    height: 400px;
+    margin: var(--space-lg) 0;
+    overflow: hidden;
+}
+
+.toy-target {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    font-size: var(--font-2xl);
+    background: white;
+    border: 3px solid var(--color-dark);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.toy-target:hover {
+    transform: scale(1.2);
+}
+
+.toy-target:active {
+    transform: scale(0.9);
+}
+
+/* Game 3: Hide and Seek */
+.seek-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--space-sm);
+    margin: var(--space-lg) 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.seek-box {
+    aspect-ratio: 1;
+    font-size: var(--font-2xl);
+    background: linear-gradient(135deg, #8e9eab 0%, #eef2f3 100%);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+}
+
+.seek-box:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #a8b8c8 0%, #f0f4f7 100%);
+}
+
+.seek-box.seek-found {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    animation: foundPulse 0.5s ease;
+}
+
+.seek-box.seek-wrong {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    animation: wrongShake 0.5s ease;
+}
+
+@keyframes foundPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Responsive Mini-games */
+@media (max-width: 768px) {
+    .game-selection-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .treat-grid {
+        gap: var(--space-sm);
+    }
+    
+    .chase-area {
+        height: 300px;
+    }
+    
+    .seek-grid {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    }
+}
+
 /* Print styles */
 @media print {
     #controls,
@@ -1558,3 +1828,4 @@ kbd {
         border: none;
     }
 }
+
