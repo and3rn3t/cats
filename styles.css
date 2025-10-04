@@ -82,6 +82,35 @@
     --color-purple: #764ba2;
     --color-pink: #f5576c;
     
+    /* Rarity Colors */
+    --color-rarity-common: #b0bec5;
+    --color-rarity-uncommon: #66bb6a;
+    --color-rarity-rare: #42a5f5;
+    --color-rarity-epic: #ab47bc;
+    --color-rarity-legendary: #ffa726;
+    
+    /* Special Colors */
+    --color-gold: #FFD700;
+    --color-gold-glow: rgba(255, 215, 0, 0.5);
+    --color-gold-glow-strong: rgba(255, 215, 0, 0.8);
+    --color-success: #4CAF50;
+    --color-success-light: #8BC34A;
+    --color-canvas-sky: #87ceeb;
+    --color-canvas-water: #98d8c8;
+    --color-gray-medium: #999;
+    
+    /* Additional Gradients */
+    --gradient-success: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+    --gradient-canvas-default: linear-gradient(to bottom, #87ceeb 0%, #98d8c8 100%);
+    --gradient-locked: linear-gradient(135deg, #999 0%, #666 100%);
+    --gradient-button-action: linear-gradient(135deg, #fff9c4 0%, #ffe0b2 100%);
+    --gradient-button-gold: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    --gradient-button-gold-hover: linear-gradient(135deg, #ffe44d 0%, #ffb732 100%);
+    --gradient-button-purple: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+    --gradient-button-purple-hover: linear-gradient(135deg, #ab47bc 0%, #7e57c2 100%);
+    --gradient-button-danger: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+    --gradient-button-danger-hover: linear-gradient(135deg, #e53935 0%, #d32f2f 100%);
+    
     /* Shadows */
     --shadow-sm: 2px 2px 0 rgba(0,0,0,0.3);
     --shadow-md: 0 10px 30px rgba(0,0,0,0.3);
@@ -143,8 +172,8 @@ header::after {
     height: 5px;
     background: repeating-linear-gradient(
         90deg,
-        #333 0px,
-        #333 10px,
+        var(--color-dark) 0px,
+        var(--color-dark) 10px,
         transparent 10px,
         transparent 20px
     );
@@ -153,7 +182,7 @@ header::after {
 h1 {
     font-size: 2.2em;
     color: white;
-    text-shadow: 4px 4px 0px #333;
+    text-shadow: 4px 4px 0px var(--color-dark);
     letter-spacing: 2px;
     margin: 0;
 }
@@ -161,7 +190,7 @@ h1 {
 .tagline {
     color: white;
     font-size: 1em;
-    text-shadow: 2px 2px 0px #333;
+    text-shadow: 2px 2px 0px var(--color-dark);
     margin: 5px 0 0 0;
 }
 
@@ -187,7 +216,7 @@ h1 {
 #game-canvas {
     border: 4px solid var(--color-dark);
     border-radius: var(--radius-md);
-    background: linear-gradient(to bottom, #87ceeb 0%, #98d8c8 100%);
+    background: var(--gradient-canvas-default);
     box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
     display: block;
     width: 100%;
@@ -222,8 +251,8 @@ h1 {
 
 #collection-panel {
     margin: 20px 0;
-    background: #f0f0f0;
-    border: 4px solid #333;
+    background: var(--color-gray-light);
+    border: 4px solid var(--color-dark);
     border-radius: 10px;
     padding: 20px;
     max-height: 600px;
@@ -236,7 +265,7 @@ h1 {
 }
 
 #collection-panel h2 {
-    color: #764ba2;
+    color: var(--color-purple);
     margin-bottom: 20px;
     font-size: 2em;
 }
@@ -253,19 +282,19 @@ h1 {
 }
 
 #cat-grid::-webkit-scrollbar-track {
-    background: #f0f0f0;
+    background: var(--color-gray-light);
     border-radius: 5px;
-    border: 2px solid #333;
+    border: 2px solid var(--color-dark);
 }
 
 #cat-grid::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     border-radius: 5px;
-    border: 2px solid #333;
+    border: 2px solid var(--color-dark);
 }
 
 #cat-grid::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--gradient-secondary);
 }
 
 /* ============================================================================
@@ -295,7 +324,7 @@ h1 {
 }
 
 .environment-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     border: var(--border-thick) solid var(--color-dark);
     border-radius: var(--border-radius);
     padding: var(--space-md);
@@ -320,22 +349,22 @@ h1 {
 }
 
 .environment-card.active {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    box-shadow: 0 0 0 4px #FFD700;
+    background: var(--gradient-secondary);
+    box-shadow: 0 0 0 4px var(--color-gold);
     animation: glow-pulse 2s ease-in-out infinite;
 }
 
 @keyframes glow-pulse {
     0%, 100% {
-        box-shadow: 0 0 0 4px #FFD700, 0 0 20px rgba(255, 215, 0, 0.5);
+        box-shadow: 0 0 0 4px var(--color-gold), 0 0 20px var(--color-gold-glow);
     }
     50% {
-        box-shadow: 0 0 0 4px #FFD700, 0 0 30px rgba(255, 215, 0, 0.8);
+        box-shadow: 0 0 0 4px var(--color-gold), 0 0 30px var(--color-gold-glow-strong);
     }
 }
 
 .environment-card.locked {
-    background: linear-gradient(135deg, #999 0%, #666 100%);
+    background: var(--gradient-locked);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -376,7 +405,7 @@ h1 {
 
 .environment-progress .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+    background: var(--gradient-success);
     transition: width 0.3s ease;
 }
 
@@ -389,7 +418,7 @@ h1 {
 
 .cat-card {
     background: white;
-    border: 3px solid #333;
+    border: 3px solid var(--color-dark);
     border-radius: 10px;
     padding: 15px;
     text-align: center;
@@ -407,7 +436,7 @@ h1 {
 .cat-card.locked {
     opacity: 0.4;
     cursor: not-allowed;
-    background: #ddd;
+    background: var(--color-gray-mid);
 }
 
 .cat-card.locked:hover {
@@ -422,7 +451,7 @@ h1 {
 
 .cat-card h3 {
     font-size: 1.1em;
-    color: #333;
+    color: var(--color-dark);
     margin: 10px 0 5px 0;
 }
 
@@ -443,15 +472,15 @@ h1 {
     background: rgba(255, 255, 255, 0.9);
     padding: 4px 8px;
     border-radius: 50%;
-    border: 2px solid #333;
+    border: 2px solid var(--color-dark);
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.rarity-common { background: #b0bec5; color: white; }
-.rarity-uncommon { background: #66bb6a; color: white; }
-.rarity-rare { background: #42a5f5; color: white; }
-.rarity-epic { background: #ab47bc; color: white; }
-.rarity-legendary { background: #ffa726; color: white; }
+.rarity-common { background: var(--color-rarity-common); color: white; }
+.rarity-uncommon { background: var(--color-rarity-uncommon); color: white; }
+.rarity-rare { background: var(--color-rarity-rare); color: white; }
+.rarity-epic { background: var(--color-rarity-epic); color: white; }
+.rarity-legendary { background: var(--color-rarity-legendary); color: white; }
 
 /* Dialog Elements - Modern Semantic HTML5 */
 dialog {
@@ -544,7 +573,7 @@ dialog#help-modal[open] {
     left: -5px;
     right: -5px;
     bottom: -5px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--gradient-secondary);
     border-radius: 15px;
     z-index: -1;
 }
@@ -731,16 +760,16 @@ dialog#help-modal[open] {
     flex-shrink: 0;
     padding: 20px 0;
     margin: 20px 0;
-    background: linear-gradient(135deg, #fff9c4 0%, #ffe0b2 100%);
+    background: var(--gradient-button-action);
     border-radius: 15px;
-    border: 3px solid #333;
+    border: 3px solid var(--color-dark);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .main-btn {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--gradient-secondary);
     color: white;
-    border: 3px solid #333;
+    border: 3px solid var(--color-dark);
     padding: 10px 25px;
     font-size: 1.1em;
     border-radius: 12px;
@@ -755,7 +784,7 @@ dialog#help-modal[open] {
 .main-btn:focus {
     transform: translateY(-3px) rotate(-2deg);
     box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
-    outline: 2px solid #333;
+    outline: 2px solid var(--color-dark);
     outline-offset: 2px;
 }
 
@@ -765,13 +794,13 @@ dialog#help-modal[open] {
 }
 
 .main-btn:focus-visible {
-    outline: 3px solid #764ba2;
+    outline: 3px solid var(--color-purple);
     outline-offset: 3px;
 }
 
 /* Special styling for explore button to draw attention */
 #explore-btn {
-    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    background: var(--gradient-button-gold);
     font-size: 1.3em;
     padding: 15px 35px;
     animation: pulse 2s ease-in-out infinite;
@@ -779,18 +808,18 @@ dialog#help-modal[open] {
 
 #explore-btn:hover,
 #explore-btn:focus {
-    background: linear-gradient(135deg, #ffe44d 0%, #ffb732 100%);
+    background: var(--gradient-button-gold-hover);
     transform: translateY(-5px) rotate(-2deg) scale(1.05);
 }
 
 /* Mute button styling */
 #mute-btn {
-    background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+    background: var(--gradient-button-purple);
 }
 
 #mute-btn:hover,
 #mute-btn:focus {
-    background: linear-gradient(135deg, #ab47bc 0%, #7e57c2 100%);
+    background: var(--gradient-button-purple-hover);
 }
 
 /* Volume slider styling */
@@ -862,7 +891,8 @@ dialog#help-modal[open] {
 
 .close-btn:hover,
 .close-btn:focus {
-    background: #d64456;
+    background: var(--color-pink);
+    filter: brightness(0.9);
     transform: rotate(90deg);
     outline: var(--border-thin) solid var(--color-light);
     outline-offset: var(--border-thin);
@@ -923,12 +953,12 @@ dialog#help-modal[open] {
 
 /* Reset button styling */
 .reset-btn {
-    background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+    background: var(--gradient-button-danger) !important;
     margin-top: var(--space-md) !important;
 }
 
 .reset-btn:hover {
-    background: linear-gradient(135deg, #e53935 0%, #d32f2f 100%) !important;
+    background: var(--gradient-button-danger-hover) !important;
     transform: translateY(-2px) scale(1.05);
 }
 
@@ -1078,11 +1108,11 @@ dialog#help-modal[open] {
     bottom: 20px;
     right: -400px;
     width: 350px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     padding: 15px;
     border-radius: 15px;
-    border: 4px solid #333;
+    border: 4px solid var(--color-dark);
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
@@ -1096,16 +1126,16 @@ dialog#help-modal[open] {
 }
 
 .achievement-notification.legendary {
-    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    background: var(--gradient-button-gold);
     animation: legendary-glow 2s infinite;
 }
 
 .achievement-notification.epic {
-    background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%);
+    background: linear-gradient(135deg, var(--color-rarity-epic) 0%, #8e24aa 100%);
 }
 
 .achievement-notification.rare {
-    background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+    background: linear-gradient(135deg, var(--color-rarity-rare) 0%, #1976d2 100%);
 }
 
 @keyframes legendary-glow {
@@ -1149,7 +1179,7 @@ dialog#help-modal[open] {
     width: 400px;
     max-height: 85vh;
     background: white;
-    border: 5px solid #333;
+    border: 5px solid var(--color-dark);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     transition: right 0.4s ease;
@@ -1164,9 +1194,9 @@ dialog#help-modal[open] {
 }
 
 .panel-header {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--gradient-secondary);
     padding: 15px;
-    border-bottom: 4px solid #333;
+    border-bottom: 4px solid var(--color-dark);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1207,7 +1237,7 @@ dialog#help-modal[open] {
     padding: 20px;
     text-align: center;
     background: #f5f5f5;
-    border-bottom: 3px solid #333;
+    border-bottom: 3px solid var(--color-dark);
 }
 
 .achievement-progress {
@@ -1228,7 +1258,7 @@ dialog#help-modal[open] {
 
 .achievement-card {
     background: white;
-    border: 3px solid #333;
+    border: 3px solid var(--color-dark);
     border-radius: 12px;
     padding: 15px;
     text-align: center;
@@ -1286,7 +1316,7 @@ dialog#help-modal[open] {
 
 .stat-card {
     background: white;
-    border: 4px solid #333;
+    border: 4px solid var(--color-dark);
     border-radius: 15px;
     padding: 20px;
     display: flex;
@@ -1345,13 +1375,13 @@ dialog#help-modal[open] {
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     transition: width 1s ease;
 }
 
 .analytics-section {
     background: #f9f9f9;
-    border: 3px solid #333;
+    border: 3px solid var(--color-dark);
     border-radius: 12px;
     padding: 20px;
 }
@@ -1649,8 +1679,8 @@ dialog#help-modal[open] {
 
 /* Keyboard navigation styles */
 kbd {
-    background-color: #f0f0f0;
-    border: 2px solid #333;
+    background-color: var(--color-gray-light);
+    border: 2px solid var(--color-dark);
     border-radius: 5px;
     padding: 2px 6px;
     font-family: monospace;

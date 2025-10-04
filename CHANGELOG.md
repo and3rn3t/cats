@@ -81,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More concise and readable null-safety checks
 - Reduced code verbosity
 
-### 📝 Documentation
+### 📝 Documentation (v2.5.1)
 
 - Added `docs/PHASE_2.3_ACHIEVEMENTS_COMPLETE.md` - Achievement system details
 - Added `docs/PHASE_3_CODE_QUALITY_COMPLETE.md` - Refactoring documentation
@@ -160,7 +160,7 @@ Total cats increased from **25 to 40** (+60% content!)
 - **Backward Compatible**: Old saves from v2.0.x work perfectly
 - Graceful migration from single-environment to multi-environment
 
-### 🔧 Technical Changes
+### 🔧 Technical Changes (v2.5.0)
 
 #### New Files
 
@@ -255,7 +255,7 @@ Rarities:
 - **Replayability**: Significantly increased
 - **Educational Value**: Enhanced with habitat teaching
 
-### 📝 Documentation Added
+### 📝 Documentation (v2.5.0)
 
 - `docs/TESTING_GUIDE_V2.5.0.md` - Comprehensive testing guide
 - `docs/TESTING_RESULTS_V2.5.0.md` - Complete test results
@@ -336,7 +336,7 @@ Rarities:
   - Accessible keyboard navigation
   - ARIA labels for screen readers
 
-### 🐛 Fixed
+### 🐛 Fixed (v2.4.0)
 
 - Fixed duplicate ID conflict between main game canvas and mini-game modal
   - Renamed mini-game elements to unique IDs (`minigame-screen`, `minigame-area`)
@@ -588,7 +588,7 @@ Rarities:
 
 - `docs/CSS_DESIGN_SYSTEM.md`: Complete design system documentation
 
-### 📝 Documentation
+### 📝 Documentation (v2.1.2)
 
 - Full variable reference with examples
 - Usage guidelines (DO/DON'T patterns)
@@ -629,7 +629,7 @@ Rarities:
 
 This version completely transforms Cat Collector from a casual clicking game into a strategic puzzle game with meaningful choices and real consequences!
 
-### ✨ Added
+### ✨ Added (Strategy System)
 
 - **2-Attempt Limit System**: Each cat encounter now has a maximum of 2 attempts before the cat runs away permanently for that exploration
 - **Strategic Success Rate Calculation**:
@@ -687,7 +687,7 @@ This version completely transforms Cat Collector from a casual clicking game int
 - **Before**: Mindless clicking, no strategy needed
 - **After**: Must read stats, make informed decisions, manage resources, accept consequences
 
-### 📝 Documentation Added
+### 📝 Documentation (v2.1.0)
 
 - **CHALLENGE_MODE_V2.1.0.md**: Complete 400+ line guide explaining all changes
 - **STRATEGY_QUICK_REFERENCE.md**: Quick reference cheat sheet for players
@@ -707,7 +707,7 @@ Several achievements became significantly harder:
 - Middle stat values (50-70) create tough decisions with ~35-45% success
 - Energy scarcity is intentional - failed encounters should hurt
 
-### 🔧 Technical Changes
+### 🔧 Technical Changes (v2.1.0)
 
 **game.js**:
 
@@ -725,7 +725,7 @@ Several achievements became significantly harder:
 
 ## [2.0.6] - 2024-10-03 - "Panel Fix"
 
-### 🐛 Fixed
+### 🐛 Fixed (Panel Close Buttons)
 
 - **Close Button Destruction**: Both achievements and analytics panels were destroying their own close buttons
   - Problem: `innerHTML` replacement on entire panel removed panel-header with close button
@@ -736,14 +736,14 @@ Several achievements became significantly harder:
 
 ## [2.0.5] - 2024-10-03 - "UI Polish"
 
-### ✨ Improved
+### ✨ Improved (Close Button Visibility)
 
 - **Close Button Visibility**: Enlarged and emboldened panel close buttons
   - Size: 30x30px → 40x40px
   - Font weight: 700 (bold)
   - Better contrast and clickability
-  
-### 🐛 Fixed
+
+### 🐛 Fixed (Control Positioning)
 
 - **Controls Floating**: When collection hidden, main controls appeared in middle of screen
   - Added `overflow-y: auto` to #main-game
@@ -753,7 +753,7 @@ Several achievements became significantly harder:
 
 ## [2.0.4] - 2024-10-03 - "Modal Refinement"
 
-### ✨ Improved
+### ✨ Improved (Modal Compactness)
 
 - **Cat Details Modal**: Made more compact (20-30% smaller)
   - Reduced modal padding
@@ -761,7 +761,7 @@ Several achievements became significantly harder:
   - Removed unnecessary scrollbars
   - Better fit on standard screens
 
-### 🐛 Fixed
+### 🐛 Fixed (Analytics Panel)
 
 - **Analytics Panel Close**: Fixed close button not functioning
   - Added proper event listener
@@ -782,7 +782,7 @@ Several achievements became significantly harder:
 
 ## [2.0.2] - 2024-10-03 - "Welcome Improvements"
 
-### ✨ Added
+### ✨ Added (Onboarding)
 
 - **Welcome Message**: First-time players see friendly greeting with instructions
 - **Prominent Explore Button**: Pulsing animation draws attention
@@ -793,7 +793,7 @@ Several achievements became significantly harder:
 
 ## [2.0.1] - 2024-10-03 - "Loading Fix"
 
-### 🐛 Fixed
+### 🐛 Fixed (CAT_BREEDS Loading)
 
 - **CAT_BREEDS Not Loading**: Fixed critical browser export issue
   - Added `window.CAT_BREEDS` export in catData.js
