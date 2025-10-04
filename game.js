@@ -11,7 +11,17 @@ let gameState = {
     treatSuccesses: 0,
     approachCount: 0,
     unlockedAchievements: new Set(),
-    analytics: null
+    analytics: null,
+    // Environment system (v2.5.0)
+    currentEnvironment: 'forest',
+    environmentProgress: {
+        forest: { discovered: new Set(), visits: 0 },
+        mountain: { discovered: new Set(), visits: 0 },
+        desert: { discovered: new Set(), visits: 0 },
+        city: { discovered: new Set(), visits: 0 },
+        beach: { discovered: new Set(), visits: 0 }
+    },
+    environmentsUnlocked: ['forest']
 };
 
 // Canvas setup
@@ -84,6 +94,11 @@ function initGame() {
         initMinigames();
     }
     
+    // Initialize environment system (v2.5.0)
+    if (window.ENVIRONMENTS && window.renderEnvironmentSelector) {
+        renderEnvironmentSelector(gameState);
+    }
+    
     // Show welcome message for first-time players
     if (isFirstTime) {
         setTimeout(showWelcomeMessage, 500);
@@ -101,7 +116,17 @@ function saveGameState() {
             updatePlayTime(gameState);
         }
         
+        // Convert environment progress Sets to Arrays for JSON serialization
+        const environmentProgressSerialized = {};
+        for (const [env, progress] of Object.entries(gameState.environmentProgress || {})) {
+            environmentProgressSerialized[env] = {
+                discovered: Array.from(progress.discovered || []),
+                visits: progress.visits || 0
+            };
+        }
+        
         localStorage.setItem('catCollectorGame', JSON.stringify({
+            version: '2.5.0',
             collectedCats: Array.from(gameState.collectedCats),
             playerEnergy: gameState.playerEnergy,
             gameStartTime: gameState.gameStartTime,
@@ -112,7 +137,11 @@ function saveGameState() {
             approachCount: gameState.approachCount,
             unlockedAchievements: Array.from(gameState.unlockedAchievements || []),
             analytics: gameState.analytics,
-            tenthCatTime: gameState.tenthCatTime
+            tenthCatTime: gameState.tenthCatTime,
+            // Environment system (v2.5.0)
+            currentEnvironment: gameState.currentEnvironment || 'forest',
+            environmentProgress: environmentProgressSerialized,
+            environmentsUnlocked: gameState.environmentsUnlocked || ['forest']
         }));
     } catch (error) {
         console.error('Failed to save game state:', error);
@@ -129,6 +158,8 @@ function loadGameState() {
         const saved = localStorage.getItem('catCollectorGame');
         if (saved) {
             const data = JSON.parse(saved);
+            
+            // Load basic game state
             gameState.collectedCats = new Set(data.collectedCats || []);
             gameState.playerEnergy = data.playerEnergy ?? 100;
             gameState.gameStartTime = data.gameStartTime || Date.now();
@@ -140,6 +171,32 @@ function loadGameState() {
             gameState.unlockedAchievements = new Set(data.unlockedAchievements || []);
             gameState.analytics = data.analytics || null;
             gameState.tenthCatTime = data.tenthCatTime || null;
+            
+            // Load environment state (v2.5.0)
+            gameState.currentEnvironment = data.currentEnvironment || 'forest';
+            gameState.environmentsUnlocked = data.environmentsUnlocked || ['forest'];
+            
+            // Load environment progress (convert Arrays back to Sets)
+            if (data.environmentProgress) {
+                gameState.environmentProgress = {};
+                for (const [env, progress] of Object.entries(data.environmentProgress)) {
+                    gameState.environmentProgress[env] = {
+                        discovered: new Set(progress.discovered || []),
+                        visits: progress.visits || 0
+                    };
+                }
+            } else {
+                // Initialize default environment progress
+                gameState.environmentProgress = {
+                    forest: { discovered: new Set(), visits: 0 },
+                    mountain: { discovered: new Set(), visits: 0 },
+                    desert: { discovered: new Set(), visits: 0 },
+                    city: { discovered: new Set(), visits: 0 },
+                    beach: { discovered: new Set(), visits: 0 }
+                };
+            }
+            
+            console.log('✅ Game state loaded. Current environment:', gameState.currentEnvironment);
         }
     } catch (error) {
         console.error('Failed to load game state:', error);
@@ -228,12 +285,32 @@ function setupEventListeners() {
 function initializeGradients() {
     if (!ctx) return;
     
-    cachedGradients = {
-        sky: ctx.createLinearGradient(0, 0, 0, canvas.height)
-    };
+    // Get current environment colors (v2.5.0)
+    let skyColors = ['#87ceeb', '#98d8c8']; // Default forest
+    let groundColors = ['#90ee90', '#7cb87c']; // Default forest
     
-    cachedGradients.sky.addColorStop(0, '#87ceeb');
-    cachedGradients.sky.addColorStop(1, '#98d8c8');
+    if (window.ENVIRONMENTS && gameState.currentEnvironment) {
+        const env = window.ENVIRONMENTS[gameState.currentEnvironment];
+        if (env && env.background) {
+            skyColors = env.background.skyGradient || skyColors;
+            groundColors = env.background.groundGradient || groundColors;
+        }
+    }
+    
+    // Create sky gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    skyGradient.addColorStop(0, skyColors[0]);
+    skyGradient.addColorStop(1, skyColors[1]);
+    
+    // Create ground gradient
+    const groundGradient = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height);
+    groundGradient.addColorStop(0, groundColors[0]);
+    groundGradient.addColorStop(1, groundColors[1]);
+    
+    cachedGradients = {
+        sky: skyGradient,
+        ground: groundGradient
+    };
 }
 
 /**
@@ -267,8 +344,8 @@ function drawBackground() {
 }
 
 function drawEnvironment() {
-    // Ground
-    ctx.fillStyle = '#90ee90';
+    // Ground with environment-specific gradient
+    ctx.fillStyle = cachedGradients?.ground || '#90ee90';
     ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
     
     // Grass details
@@ -390,6 +467,13 @@ function exploreForCats() {
     // Reduce energy
     gameState.playerEnergy = Math.max(0, gameState.playerEnergy - 10);
     gameState.explorationCount = (gameState.explorationCount || 0) + 1;
+    
+    // Track environment visits (v2.5.0)
+    const currentEnv = gameState.currentEnvironment || 'forest';
+    if (gameState.environmentProgress && gameState.environmentProgress[currentEnv]) {
+        gameState.environmentProgress[currentEnv].visits += 1;
+    }
+    
     updatePlayerStats();
     saveGameState();
     
@@ -423,6 +507,7 @@ function exploreForCats() {
 
 /**
  * Select a random cat using weighted rarity system
+ * Now filters by current environment (v2.5.0)
  * @returns {Object|null} Cat object or null if all collected
  */
 function selectRandomCat() {
@@ -432,11 +517,24 @@ function selectRandomCat() {
         return null;
     }
     
-    // Filter cats by rarity and availability
-    const availableCats = window.CAT_BREEDS.filter(cat => !gameState.collectedCats.has(cat.id));
+    // Get current environment
+    const currentEnv = gameState.currentEnvironment || 'forest';
+    
+    // Filter cats by environment and availability (not yet collected)
+    const availableCats = window.CAT_BREEDS.filter(cat => 
+        cat.environment === currentEnv && !gameState.collectedCats.has(cat.id)
+    );
     
     if (availableCats.length === 0) {
-        alert('🎉 Congratulations! You\'ve collected all the cats! 🎉');
+        // Check if all cats in this environment are collected
+        const allCatsInEnv = window.CAT_BREEDS.filter(cat => cat.environment === currentEnv);
+        const collectedInEnv = allCatsInEnv.filter(cat => gameState.collectedCats.has(cat.id));
+        
+        if (collectedInEnv.length === allCatsInEnv.length) {
+            alert(`🎉 You've collected all cats in ${ENVIRONMENTS[currentEnv]?.name || 'this environment'}! Try exploring another environment!`);
+        } else {
+            alert('The area is quiet... try again!');
+        }
         return null;
     }
     
@@ -647,6 +745,16 @@ function handleEncounterAction(action) {
         
         // Add to collection
         gameState.collectedCats.add(cat.id);
+        
+        // Track environment discovery (v2.5.0)
+        const currentEnv = gameState.currentEnvironment || 'forest';
+        if (gameState.environmentProgress && gameState.environmentProgress[currentEnv]) {
+            gameState.environmentProgress[currentEnv].discovered.add(cat.id);
+        }
+        
+        // Check for environment unlocks (v2.5.0)
+        checkEnvironmentUnlocks();
+        
         saveGameState();
         
         // Create visual effects
@@ -759,11 +867,15 @@ function renderCollection() {
         
         card.className = `cat-card ${isCollected ? '' : 'locked'}`;
         
+        // Get environment icon (v2.5.0)
+        const envIcon = window.ENVIRONMENTS?.[cat.environment]?.icon || '🌍';
+        
         if (isCollected) {
             card.innerHTML = `
                 <div class="cat-icon">${cat.icon}</div>
                 <h3>${cat.name}</h3>
                 <span class="rarity rarity-${cat.stats.rarity}">${cat.stats.rarity}</span>
+                <span class="environment-badge" title="${cat.environment}">${envIcon}</span>
             `;
             // Use arrow function to avoid creating new function each time
             card.addEventListener('click', () => showCatDetails(cat.id));
@@ -782,6 +894,7 @@ function renderCollection() {
                 <div class="cat-icon">❓</div>
                 <h3>???</h3>
                 <span class="rarity rarity-${cat.stats.rarity}">${cat.stats.rarity}</span>
+                <span class="environment-badge" title="Unknown environment">${envIcon}</span>
             `;
             card.setAttribute('aria-label', `Unknown ${cat.stats.rarity} cat - not yet collected`);
         }
@@ -965,6 +1078,86 @@ function startEnergyRegeneration() {
         }
     }, 45000); // HARDER: Regenerate 1 energy every 45 seconds (was 30)
 }
+
+/**
+ * Check and unlock new environments based on collection progress (v2.5.0)
+ */
+function checkEnvironmentUnlocks() {
+    if (!window.ENVIRONMENTS || !window.isEnvironmentUnlocked) {
+        return; // Environment system not loaded
+    }
+    
+    const environmentsToCheck = ['mountain', 'desert', 'city', 'beach'];
+    
+    for (const envId of environmentsToCheck) {
+        // Skip if already unlocked
+        if (gameState.environmentsUnlocked.includes(envId)) {
+            continue;
+        }
+        
+        const env = window.ENVIRONMENTS[envId];
+        if (env && env.unlockRequirement && env.unlockRequirement(gameState)) {
+            // Unlock the environment
+            gameState.environmentsUnlocked.push(envId);
+            
+            // Show notification
+            setTimeout(() => {
+                alert(`🎉 NEW ENVIRONMENT UNLOCKED! 🎉\n\n${env.icon} ${env.name}\n\n${env.description}\n\nYou can now explore this new area!`);
+                
+                // Re-render environment selector to show the new environment
+                if (window.renderEnvironmentSelector) {
+                    renderEnvironmentSelector(gameState);
+                }
+            }, 1000);
+        }
+    }
+}
+
+/**
+ * Switch to a different environment (v2.5.0)
+ * @param {string} environmentId - ID of environment to switch to
+ */
+function switchEnvironment(environmentId) {
+    if (!window.ENVIRONMENTS || !window.ENVIRONMENTS[environmentId]) {
+        console.error('Environment not found:', environmentId);
+        return;
+    }
+    
+    // Check if unlocked
+    if (!gameState.environmentsUnlocked.includes(environmentId)) {
+        const env = window.ENVIRONMENTS[environmentId];
+        alert(`🔒 ${env.name} is locked!\n\n${env.unlockMessage || 'Keep collecting to unlock!'}`);
+        return;
+    }
+    
+    // Switch environment
+    gameState.currentEnvironment = environmentId;
+    saveGameState();
+    
+    // Update UI
+    const env = window.ENVIRONMENTS[environmentId];
+    console.log(`🌍 Switched to ${env.name}`);
+    
+    // Redraw scene with new environment
+    if (cachedGradients) {
+        cachedGradients = null; // Clear cached gradients
+        initializeGradients();
+    }
+    drawScene();
+    
+    // Update environment selector
+    if (window.renderEnvironmentSelector) {
+        renderEnvironmentSelector(gameState);
+    }
+    
+    // Play sound
+    if (window.playButtonClick) {
+        playButtonClick();
+    }
+}
+
+// Expose switchEnvironment globally for environment selector buttons
+window.switchEnvironment = switchEnvironment;
 
 /**
  * Handle keyboard input for accessibility
