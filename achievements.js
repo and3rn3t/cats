@@ -38,11 +38,35 @@ const ACHIEVEMENTS = [
         rarity: 'rare'
     },
     {
-        id: 'all_cats',
-        name: 'Cat Master',
-        description: 'Collect all 25 cats!',
-        icon: '👑',
+        id: 'twenty_cats',
+        name: 'Master Collector',
+        description: 'Collect 20 different cats',
+        icon: '💫',
+        requirement: (state) => state.collectedCats.size >= 20,
+        rarity: 'epic'
+    },
+    {
+        id: 'twentyfive_cats',
+        name: 'Elite Collector',
+        description: 'Collect 25 different cats',
+        icon: '🌠',
         requirement: (state) => state.collectedCats.size >= 25,
+        rarity: 'epic'
+    },
+    {
+        id: 'thirty_cats',
+        name: 'Grand Master',
+        description: 'Collect 30 different cats',
+        icon: '✨',
+        requirement: (state) => state.collectedCats.size >= 30,
+        rarity: 'legendary'
+    },
+    {
+        id: 'all_cats',
+        name: 'Cat Master Supreme',
+        description: 'Collect all 40 cats!',
+        icon: '👑',
+        requirement: (state) => state.collectedCats.size >= 40,
         rarity: 'legendary'
     },
     {
@@ -164,6 +188,129 @@ const ACHIEVEMENTS = [
         icon: '🌍',
         requirement: (state) => checkContinents(state) >= 5,
         rarity: 'rare'
+    },
+    // Environment Unlock Achievements
+    {
+        id: 'unlock_mountain',
+        name: 'Peak Explorer',
+        description: 'Unlock the Snowy Peaks environment',
+        icon: '⛰️',
+        requirement: (state) => state.unlockedEnvironments?.has('mountain') || false,
+        rarity: 'uncommon'
+    },
+    {
+        id: 'unlock_desert',
+        name: 'Desert Wanderer',
+        description: 'Unlock the Golden Sands environment',
+        icon: '🏜️',
+        requirement: (state) => state.unlockedEnvironments?.has('desert') || false,
+        rarity: 'rare'
+    },
+    {
+        id: 'unlock_city',
+        name: 'Urban Explorer',
+        description: 'Unlock the Urban Jungle environment',
+        icon: '🏙️',
+        requirement: (state) => state.unlockedEnvironments?.has('city') || false,
+        rarity: 'rare'
+    },
+    {
+        id: 'unlock_beach',
+        name: 'Beach Comber',
+        description: 'Unlock the Tropical Paradise environment',
+        icon: '🏖️',
+        requirement: (state) => state.unlockedEnvironments?.has('beach') || false,
+        rarity: 'epic'
+    },
+    // Environment Collection Achievements
+    {
+        id: 'forest_complete',
+        name: 'Forest Guardian',
+        description: 'Collect all cats from the Mystic Forest',
+        icon: '🌲',
+        requirement: (state) => checkEnvironmentComplete(state, 'forest'),
+        rarity: 'rare'
+    },
+    {
+        id: 'mountain_complete',
+        name: 'Mountain Master',
+        description: 'Collect all cats from the Snowy Peaks',
+        icon: '🏔️',
+        requirement: (state) => checkEnvironmentComplete(state, 'mountain'),
+        rarity: 'rare'
+    },
+    {
+        id: 'desert_complete',
+        name: 'Desert Sultan',
+        description: 'Collect all cats from the Golden Sands',
+        icon: '🏜️',
+        requirement: (state) => checkEnvironmentComplete(state, 'desert'),
+        rarity: 'epic'
+    },
+    {
+        id: 'city_complete',
+        name: 'City Legend',
+        description: 'Collect all cats from the Urban Jungle',
+        icon: '🏙️',
+        requirement: (state) => checkEnvironmentComplete(state, 'city'),
+        rarity: 'epic'
+    },
+    {
+        id: 'beach_complete',
+        name: 'Beach Boss',
+        description: 'Collect all cats from the Tropical Paradise',
+        icon: '🏖️',
+        requirement: (state) => checkEnvironmentComplete(state, 'beach'),
+        rarity: 'epic'
+    },
+    // Mini-Game Achievements
+    {
+        id: 'minigame_novice',
+        name: 'Game Enthusiast',
+        description: 'Play 10 mini-games',
+        icon: '🎮',
+        requirement: (state) => (state.minigamesPlayed || 0) >= 10,
+        rarity: 'common'
+    },
+    {
+        id: 'minigame_expert',
+        name: 'Mini-Game Master',
+        description: 'Play 50 mini-games',
+        icon: '🕹️',
+        requirement: (state) => (state.minigamesPlayed || 0) >= 50,
+        rarity: 'uncommon'
+    },
+    {
+        id: 'high_scorer',
+        name: 'High Scorer',
+        description: 'Get a high score of 10+ in any mini-game',
+        icon: '🏅',
+        requirement: (state) => checkAnyHighScore(state, 10),
+        rarity: 'rare'
+    },
+    {
+        id: 'perfect_memory',
+        name: 'Perfect Memory',
+        description: 'Reach level 10 in Follow the Treat',
+        icon: '🧠',
+        requirement: (state) => checkMinigameHighScore(state, 'followTheTreat', 10),
+        rarity: 'epic'
+    },
+    {
+        id: 'toy_master',
+        name: 'Lightning Reflexes',
+        description: 'Score 30+ in Cat Toy Chase',
+        icon: '⚡',
+        requirement: (state) => checkMinigameHighScore(state, 'catToyChase', 30),
+        rarity: 'rare'
+    },
+    {
+        id: 'seeker_pro',
+        name: 'Hide & Seek Pro',
+        description: 'Score 100+ in Hide and Seek',
+        icon: '🔍',
+        requirement: (state) => checkMinigameHighScore(state, 'hideAndSeek', 100),
+        rarity: 'epic'
     }
 ];
 
@@ -236,6 +383,49 @@ function checkContinents(state) {
     });
     
     return continents.size;
+}
+
+/**
+ * Check if all cats from a specific environment are collected
+ * @param {Object} state - Game state
+ * @param {string} environmentId - Environment ID to check
+ * @returns {boolean}
+ */
+function checkEnvironmentComplete(state, environmentId) {
+    if (!window.CAT_BREEDS || !window.ENVIRONMENTS) return false;
+    
+    const env = window.ENVIRONMENTS[environmentId];
+    if (!env?.catIds) return false;
+    
+    // Check if all cats from this environment are collected
+    return env.catIds.every(catId => state.collectedCats.has(catId));
+}
+
+/**
+ * Check if any mini-game high score meets or exceeds threshold
+ * @param {Object} state - Game state
+ * @param {number} threshold - Minimum score required
+ * @returns {boolean}
+ */
+function checkAnyHighScore(state, threshold) {
+    if (!state.minigameHighScores) return false;
+    
+    const scores = state.minigameHighScores;
+    return (scores.followTheTreat >= threshold) ||
+           (scores.catToyChase >= threshold) ||
+           (scores.hideAndSeek >= threshold);
+}
+
+/**
+ * Check specific mini-game high score
+ * @param {Object} state - Game state
+ * @param {string} gameName - Name of the mini-game
+ * @param {number} threshold - Minimum score required
+ * @returns {boolean}
+ */
+function checkMinigameHighScore(state, gameName, threshold) {
+    if (!state.minigameHighScores) return false;
+    return (state.minigameHighScores[gameName] || 0) >= threshold;
 }
 
 /**

@@ -18,7 +18,8 @@ const minigameState = {
         catToyChase: 0,
         hideAndSeek: 0
     },
-    isPlaying: false
+    isPlaying: false,
+    gamesPlayed: 0
 };
 
 /**
@@ -39,6 +40,7 @@ function loadMinigameScores() {
         if (saved) {
             const data = JSON.parse(saved);
             minigameState.highScores = data.highScores || minigameState.highScores;
+            minigameState.gamesPlayed = data.gamesPlayed || 0;
         }
     } catch (error) {
         console.error('Failed to load minigame scores:', error);
@@ -51,8 +53,22 @@ function loadMinigameScores() {
 function saveMinigameScores() {
     try {
         localStorage.setItem('catCollectorMinigames', JSON.stringify({
-            highScores: minigameState.highScores
+            highScores: minigameState.highScores,
+            gamesPlayed: minigameState.gamesPlayed
         }));
+        
+        // Also sync to main gameState for achievements
+        if (window.gameState) {
+            window.gameState.minigameHighScores = minigameState.highScores;
+            window.gameState.minigamesPlayed = minigameState.gamesPlayed;
+            if (window.saveGame) {
+                window.saveGame();
+            }
+            // Check for new achievements
+            if (window.updateAchievements) {
+                window.updateAchievements(window.gameState);
+            }
+        }
     } catch (error) {
         console.error('Failed to save minigame scores:', error);
     }
@@ -321,6 +337,7 @@ function handleTreatClick(e) {
  */
 function treatGameOver(won) {
     minigameState.isPlaying = false;
+    minigameState.gamesPlayed++;
     
     const message = document.getElementById('treat-message');
     const finalScore = treatLevel - 1;
@@ -340,6 +357,9 @@ function treatGameOver(won) {
             message.textContent = `🎉 New High Score! Level ${finalScore}`;
         }
         if (window.playSuccess) playSuccess();
+    } else {
+        // Save games played count even if no high score
+        saveMinigameScores();
     }
     
     // Show back button
@@ -481,6 +501,7 @@ function chaseGameOver() {
     stopCatToyChase();
     
     minigameState.score = chaseScore;
+    minigameState.gamesPlayed++;
     
     const gameArea = document.getElementById('minigame-area');
     if (!gameArea) return;
@@ -495,6 +516,8 @@ function chaseGameOver() {
         if (window.playSuccess) playSuccess();
     } else {
         if (window.playFailure) playFailure();
+        // Save games played count even if no high score
+        saveMinigameScores();
     }
     
     gameArea.innerHTML = `
@@ -585,45 +608,65 @@ function nextSeekRound() {
  * Handle box click in Hide and Seek
  * @param {Event} e - Click event
  */
+/**
+ * Handle correct box selection in Hide and Seek
+ * @param {HTMLElement} targetBox - The clicked box element
+ */
+function handleCorrectSeekBox(targetBox) {
+    targetBox.textContent = minigameState.currentCat?.icon || '😺';
+    targetBox.classList.add('seek-found');
+    
+    seekScore += 10;
+    seekRound++;
+    
+    const roundDisplay = document.getElementById('seek-round');
+    const scoreDisplay = document.getElementById('seek-score');
+    const message = document.getElementById('seek-message');
+    
+    if (roundDisplay) roundDisplay.textContent = seekRound;
+    if (scoreDisplay) scoreDisplay.textContent = seekScore;
+    if (message) message.textContent = '✅ Found it!';
+    
+    if (window.playSuccess) playSuccess();
+    
+    setTimeout(() => nextSeekRound(), 1500);
+}
+
+/**
+ * Handle wrong box selection in Hide and Seek
+ * @param {HTMLElement} targetBox - The clicked box element
+ * @param {number} correctPosition - The correct hidden position
+ */
+function handleWrongSeekBox(targetBox, correctPosition) {
+    targetBox.textContent = '❌';
+    targetBox.classList.add('seek-wrong');
+    
+    // Reveal correct position
+    const correctBox = document.querySelector(`.seek-box[data-position="${correctPosition}"]`);
+    if (correctBox) {
+        correctBox.textContent = minigameState.currentCat?.icon || '😺';
+        correctBox.classList.add('seek-found');
+    }
+    
+    const message = document.getElementById('seek-message');
+    if (message) message.textContent = 'Wrong box! Game Over!';
+    
+    seekGameOver();
+}
+
+/**
+ * Handle box click in Hide and Seek game
+ * @param {Event} e - Click event
+ */
 function handleSeekClick(e) {
     if (!minigameState.isPlaying) return;
     
     const position = parseInt(e.target.dataset.position);
-    const message = document.getElementById('seek-message');
     
     if (position === hiddenCatPosition) {
-        // Found it!
-        e.target.textContent = minigameState.currentCat?.icon || '😺';
-        e.target.classList.add('seek-found');
-        
-        seekScore += 10;
-        seekRound++;
-        
-        const roundDisplay = document.getElementById('seek-round');
-        const scoreDisplay = document.getElementById('seek-score');
-        
-        if (roundDisplay) roundDisplay.textContent = seekRound;
-        if (scoreDisplay) scoreDisplay.textContent = seekScore;
-        if (message) message.textContent = '✅ Found it!';
-        
-        if (window.playSuccess) playSuccess();
-        
-        setTimeout(() => nextSeekRound(), 1500);
+        handleCorrectSeekBox(e.target);
     } else {
-        // Wrong box - game over
-        e.target.textContent = '❌';
-        e.target.classList.add('seek-wrong');
-        
-        // Reveal correct position
-        const correctBox = document.querySelector(`.seek-box[data-position="${hiddenCatPosition}"]`);
-        if (correctBox) {
-            correctBox.textContent = minigameState.currentCat?.icon || '😺';
-            correctBox.classList.add('seek-found');
-        }
-        
-        if (message) message.textContent = 'Wrong box! Game Over!';
-        
-        seekGameOver();
+        handleWrongSeekBox(e.target, hiddenCatPosition);
     }
     
     if (window.playButtonClick) playButtonClick();
@@ -635,6 +678,7 @@ function handleSeekClick(e) {
 function seekGameOver() {
     minigameState.isPlaying = false;
     minigameState.score = seekScore;
+    minigameState.gamesPlayed++;
     
     if (window.playFailure) playFailure();
     
@@ -646,6 +690,9 @@ function seekGameOver() {
         saveMinigameScores();
         resultMessage = `🎉 New High Score! ${seekScore} points!`;
         if (window.playSuccess) playSuccess();
+    } else {
+        // Save games played count even if no high score
+        saveMinigameScores();
     }
     
     const message = document.getElementById('seek-message');

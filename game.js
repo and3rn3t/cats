@@ -291,7 +291,7 @@ function initializeGradients() {
     
     if (window.ENVIRONMENTS && gameState.currentEnvironment) {
         const env = window.ENVIRONMENTS[gameState.currentEnvironment];
-        if (env && env.background) {
+        if (env?.background) {
             skyColors = env.background.skyGradient || skyColors;
             groundColors = env.background.groundGradient || groundColors;
         }
@@ -470,7 +470,7 @@ function exploreForCats() {
     
     // Track environment visits (v2.5.0)
     const currentEnv = gameState.currentEnvironment || 'forest';
-    if (gameState.environmentProgress && gameState.environmentProgress[currentEnv]) {
+    if (gameState.environmentProgress?.[currentEnv]) {
         gameState.environmentProgress[currentEnv].visits += 1;
     }
     
@@ -615,45 +615,22 @@ function showEncounter(cat) {
  * Handle player's action choice during cat encounter
  * @param {string} action - The action type ('approach', 'treat', or 'observe')
  */
-function handleEncounterAction(action) {
-    const cat = gameState.currentEncounter;
-    if (!cat) return;
-    
-    // Track attempt count for this specific encounter
-    if (!gameState.currentEncounterAttempts) {
-        gameState.currentEncounterAttempts = 0;
-    }
-    gameState.currentEncounterAttempts++;
-    
-    const attemptNumber = gameState.currentEncounterAttempts;
-    const isFirstAttempt = attemptNumber === 1;
-    
-    let success = false;
-    let message = '';
-    
-    // Track action counts
-    if (action === 'observe') gameState.observeCount = (gameState.observeCount || 0) + 1;
-    if (action === 'approach') gameState.approachCount = (gameState.approachCount || 0) + 1;
-    
-    // HARDER: After 2 failed attempts, cat runs away permanently for this exploration
-    if (attemptNumber > 2) {
-        alert(`😿 ${cat.name} got too nervous and ran away!\n\nYou'll need to explore again to find another cat.\n\n💡 Tip: Choose wisely - you only get 2 attempts per cat!`);
-        document.getElementById('encounter-panel')?.close();
-        gameState.currentEncounter = null;
-        gameState.currentEncounterAttempts = 0;
-        return;
-    }
-    
-    // HARDER: Calculate success based on cat stats and action with lower base rates
-    // Base success rate reduced from 50% to 30%
+/**
+ * Calculate success chance for an encounter action
+ * @param {Object} cat - The cat being encountered
+ * @param {string} action - The action being performed ('approach', 'treat', 'observe')
+ * @param {number} attemptNumber - Which attempt this is (1 or 2)
+ * @returns {Object} Object with successChance, strategyBonus, and message
+ */
+function calculateEncounterSuccess(cat, action, attemptNumber) {
     const baseChance = 0.30;
     let successChance = baseChance;
     let strategyBonus = 0;
+    let message = '';
     
     switch (action) {
         case 'approach':
-            // HARDER: Only works well with VERY friendly cats (>80)
-            // Reduced from +0.5 max to +0.35 max
+            // Works best with VERY friendly cats (>80)
             if (cat.stats.friendliness > 80) {
                 strategyBonus = (cat.stats.friendliness - 80) / 100; // Up to +0.2
                 successChance = baseChance + strategyBonus;
@@ -665,12 +642,12 @@ function handleEncounterAction(action) {
             } else {
                 // Penalty for shy cats
                 successChance = baseChance * 0.5; // Only 15% chance!
-                message = `${cat.name} seems too shy for direct approach! �`;
+                message = `${cat.name} seems too shy for direct approach! 😿`;
             }
             break;
             
         case 'treat':
-            // HARDER: Works best with LOW energy cats (<40)
+            // Works best with LOW energy cats (<40)
             if (cat.stats.energy < 40) {
                 strategyBonus = (40 - cat.stats.energy) / 100; // Up to +0.4
                 successChance = 0.5 + strategyBonus; // Up to 90%!
@@ -687,7 +664,7 @@ function handleEncounterAction(action) {
             break;
             
         case 'observe':
-            // HARDER: Works best with VERY intelligent cats (>75)
+            // Works best with VERY intelligent cats (>75)
             if (cat.stats.intelligence > 75) {
                 strategyBonus = (cat.stats.intelligence - 75) / 100; // Up to +0.25
                 successChance = 0.45 + strategyBonus; // Up to 70%
@@ -704,23 +681,203 @@ function handleEncounterAction(action) {
             break;
     }
     
-    // HARDER: Rarity affects difficulty
-    // Legendary cats are much harder to collect
+    // Rarity affects difficulty - Legendary cats are much harder!
     const rarityPenalty = {
         'common': 1.0,
         'uncommon': 0.95,
         'rare': 0.85,
         'epic': 0.70,
-        'legendary': 0.50  // Legendary cats are MUCH harder!
+        'legendary': 0.50
     };
     successChance *= (rarityPenalty[cat.stats.rarity] || 1.0);
     
-    // Small bonus for repeat attempts (they're getting used to you)
+    // Small bonus for repeat attempts
     if (attemptNumber > 1) {
         successChance += 0.05; // +5% on second attempt
     }
     
-    success = Math.random() < successChance;
+    return { successChance, strategyBonus, message };
+}
+
+/**
+ * Generate strategy feedback based on how well the player chose
+ * @param {number} strategyBonus - The bonus from using the right strategy
+ * @returns {string} Feedback message
+ */
+function generateStrategyFeedback(strategyBonus) {
+    if (strategyBonus > 0.2) {
+        return '\n\n🎯 EXCELLENT STRATEGY! You chose the perfect approach!';
+    } else if (strategyBonus > 0.1) {
+        return '\n\n👍 Good choice! Your strategy worked!';
+    } else if (strategyBonus > 0) {
+        return '\n\n✓ That worked, but there might be a better approach next time.';
+    } else {
+        return '\n\n🍀 Lucky! But consider the cat\'s stats next time.';
+    }
+}
+
+/**
+ * Generate helpful advice for failed encounter attempts
+ * @param {Object} cat - The cat being encountered
+ * @returns {string} Advice message
+ */
+function generateFailureAdvice(cat) {
+    let advice = '\n\n💡 ';
+    if (cat.stats.friendliness > 80) {
+        advice += 'This cat is very friendly - try approaching directly!';
+    } else if (cat.stats.energy < 40) {
+        advice += 'This cat looks tired - maybe offer a treat?';
+    } else if (cat.stats.intelligence > 75) {
+        advice += 'This cat is intelligent - try observing first!';
+    } else if (cat.stats.energy > 70) {
+        advice += 'This cat is too energetic - treats probably won\'t work!';
+    } else {
+        advice += 'Study the cat\'s stats carefully!';
+    }
+    return advice;
+}
+
+/**
+ * Process successful cat encounter
+ * @param {Object} cat - The cat that was successfully befriended
+ * @param {string} action - The action that succeeded
+ * @param {boolean} isFirstAttempt - Whether this was the first attempt
+ * @param {string} message - Success message to display
+ * @param {number} strategyBonus - Bonus from strategy
+ */
+function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strategyBonus) {
+    // Track treat successes
+    if (action === 'treat') {
+        gameState.treatSuccesses = (gameState.treatSuccesses || 0) + 1;
+    }
+    
+    // Track first try success
+    if (isFirstAttempt) {
+        gameState.firstTrySuccesses = (gameState.firstTrySuccesses || 0) + 1;
+    }
+    
+    // Track 10th cat time for speedrun achievement
+    if (gameState.collectedCats.size === 9) {
+        gameState.tenthCatTime = Date.now();
+    }
+    
+    // Add to collection
+    gameState.collectedCats.add(cat.id);
+    
+    // Track environment discovery (v2.5.0)
+    const currentEnv = gameState.currentEnvironment || 'forest';
+    if (gameState.environmentProgress?.[currentEnv]) {
+        gameState.environmentProgress[currentEnv].discovered.add(cat.id);
+    }
+    
+    // Check for environment unlocks (v2.5.0)
+    checkEnvironmentUnlocks();
+    
+    saveGameState();
+    
+    // Create visual effects
+    if (window.createConfetti && canvas) {
+        const rect = canvas.getBoundingClientRect();
+        createConfetti(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
+    }
+    
+    if (window.createHearts && canvas) {
+        const rect = canvas.getBoundingClientRect();
+        createHearts(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
+    }
+    
+    // Update achievements
+    if (window.updateAchievements) {
+        updateAchievements(gameState);
+    }
+    
+    // Show strategy feedback
+    const strategyFeedback = generateStrategyFeedback(strategyBonus);
+    
+    alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!${strategyFeedback}`);
+    
+    // Play success sound and cat meow
+    if (window.playSuccess) {
+        playSuccess();
+    }
+    setTimeout(() => {
+        if (window.playCatMeow) {
+            playCatMeow(cat.stats.rarity);
+        }
+    }, 400);
+    
+    // Close encounter and update display
+    document.getElementById('encounter-panel')?.close();
+    renderCollection();
+    updatePlayerStats();
+    
+    // Show the new cat details with enhanced portrait
+    setTimeout(() => showCatDetails(cat.id), 500);
+    
+    // Reset encounter state
+    gameState.currentEncounter = null;
+    gameState.currentEncounterAttempts = 0;
+}
+
+/**
+ * Process failed cat encounter
+ * @param {Object} cat - The cat that got away
+ * @param {number} attemptNumber - Which attempt this was (1 or 2)
+ */
+function processFailedEncounter(cat, attemptNumber) {
+    // Play failure sound
+    if (window.playFailure) {
+        playFailure();
+    }
+    
+    const failureAdvice = generateFailureAdvice(cat);
+    
+    if (attemptNumber === 1) {
+        alert(`${cat.name} isn't convinced... but you can try ONE more time!${failureAdvice}\n\n⚠️ Warning: If you fail again, the cat will run away!`);
+    } else {
+        alert(`${cat.name} runs away! 🏃‍♂️\n\nYou'll need to explore again to find another cat.${failureAdvice}`);
+        document.getElementById('encounter-panel')?.close();
+        gameState.currentEncounter = null;
+        gameState.currentEncounterAttempts = 0;
+    }
+}
+
+/**
+ * Handle encounter action (approach, treat, or observe)
+ * Main entry point for player actions during cat encounters
+ * @param {string} action - The action to perform ('approach', 'treat', 'observe')
+ */
+function handleEncounterAction(action) {
+    const cat = gameState.currentEncounter;
+    if (!cat) return;
+    
+    // Track attempt count for this specific encounter
+    if (!gameState.currentEncounterAttempts) {
+        gameState.currentEncounterAttempts = 0;
+    }
+    gameState.currentEncounterAttempts++;
+    
+    const attemptNumber = gameState.currentEncounterAttempts;
+    const isFirstAttempt = attemptNumber === 1;
+    
+    // Track action counts
+    if (action === 'observe') gameState.observeCount = (gameState.observeCount || 0) + 1;
+    if (action === 'approach') gameState.approachCount = (gameState.approachCount || 0) + 1;
+    
+    // After 2 failed attempts, cat runs away permanently
+    if (attemptNumber > 2) {
+        alert(`😿 ${cat.name} got too nervous and ran away!\n\nYou'll need to explore again to find another cat.\n\n💡 Tip: Choose wisely - you only get 2 attempts per cat!`);
+        document.getElementById('encounter-panel')?.close();
+        gameState.currentEncounter = null;
+        gameState.currentEncounterAttempts = 0;
+        return;
+    }
+    
+    // Calculate success chance based on strategy
+    const { successChance, strategyBonus, message } = calculateEncounterSuccess(cat, action, attemptNumber);
+    
+    // Determine if attempt succeeds
+    const success = Math.random() < successChance;
     
     // Track for analytics
     if (window.recordExploration) {
@@ -728,115 +885,9 @@ function handleEncounterAction(action) {
     }
     
     if (success) {
-        // Track treat successes
-        if (action === 'treat') {
-            gameState.treatSuccesses = (gameState.treatSuccesses || 0) + 1;
-        }
-        
-        // Track first try success
-        if (isFirstAttempt) {
-            gameState.firstTrySuccesses = (gameState.firstTrySuccesses || 0) + 1;
-        }
-        
-        // Track 10th cat time for speedrun achievement
-        if (gameState.collectedCats.size === 9) {
-            gameState.tenthCatTime = Date.now();
-        }
-        
-        // Add to collection
-        gameState.collectedCats.add(cat.id);
-        
-        // Track environment discovery (v2.5.0)
-        const currentEnv = gameState.currentEnvironment || 'forest';
-        if (gameState.environmentProgress && gameState.environmentProgress[currentEnv]) {
-            gameState.environmentProgress[currentEnv].discovered.add(cat.id);
-        }
-        
-        // Check for environment unlocks (v2.5.0)
-        checkEnvironmentUnlocks();
-        
-        saveGameState();
-        
-        // Create visual effects
-        if (window.createConfetti && canvas) {
-            const rect = canvas.getBoundingClientRect();
-            createConfetti(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
-        }
-        
-        if (window.createHearts && canvas) {
-            const rect = canvas.getBoundingClientRect();
-            createHearts(rect.left + canvas.width / 2, rect.top + canvas.height / 2);
-        }
-        
-        // Update achievements
-        if (window.updateAchievements) {
-            updateAchievements(gameState);
-        }
-        
-        // Show strategy feedback
-        let strategyFeedback = '';
-        if (strategyBonus > 0.2) {
-            strategyFeedback = '\n\n🎯 EXCELLENT STRATEGY! You chose the perfect approach!';
-        } else if (strategyBonus > 0.1) {
-            strategyFeedback = '\n\n👍 Good choice! Your strategy worked!';
-        } else if (strategyBonus > 0) {
-            strategyFeedback = '\n\n✓ That worked, but there might be a better approach next time.';
-        } else {
-            strategyFeedback = '\n\n🍀 Lucky! But consider the cat\'s stats next time.';
-        }
-        
-        alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!${strategyFeedback}`);
-        
-        // Play success sound and cat meow
-        if (window.playSuccess) {
-            playSuccess();
-        }
-        setTimeout(() => {
-            if (window.playCatMeow) {
-                playCatMeow(cat.stats.rarity);
-            }
-        }, 400);
-        
-        // Close encounter and update display
-        document.getElementById('encounter-panel')?.close();
-        renderCollection();
-        updatePlayerStats();
-        
-        // Show the new cat details with enhanced portrait
-        setTimeout(() => showCatDetails(cat.id), 500);
-        
-        // Reset encounter state
-        gameState.currentEncounter = null;
-        gameState.currentEncounterAttempts = 0;
+        processSuccessfulEncounter(cat, action, isFirstAttempt, message, strategyBonus);
     } else {
-        // Failed attempt - give helpful feedback
-        
-        // Play failure sound
-        if (window.playFailure) {
-            playFailure();
-        }
-        
-        let failureAdvice = '\n\n💡 ';
-        if (cat.stats.friendliness > 80) {
-            failureAdvice += 'This cat is very friendly - try approaching directly!';
-        } else if (cat.stats.energy < 40) {
-            failureAdvice += 'This cat looks tired - maybe offer a treat?';
-        } else if (cat.stats.intelligence > 75) {
-            failureAdvice += 'This cat is intelligent - try observing first!';
-        } else if (cat.stats.energy > 70) {
-            failureAdvice += 'This cat is too energetic - treats probably won\'t work!';
-        } else {
-            failureAdvice += 'Study the cat\'s stats carefully!';
-        }
-        
-        if (attemptNumber === 1) {
-            alert(`${cat.name} isn't convinced... but you can try ONE more time!${failureAdvice}\n\n⚠️ Warning: If you fail again, the cat will run away!`);
-        } else {
-            alert(`${cat.name} runs away! 🏃‍♂️\n\nYou'll need to explore again to find another cat.${failureAdvice}`);
-            document.getElementById('encounter-panel')?.close();
-            gameState.currentEncounter = null;
-            gameState.currentEncounterAttempts = 0;
-        }
+        processFailedEncounter(cat, attemptNumber);
     }
 }
 
@@ -1096,7 +1147,7 @@ function checkEnvironmentUnlocks() {
         }
         
         const env = window.ENVIRONMENTS[envId];
-        if (env && env.unlockRequirement && env.unlockRequirement(gameState)) {
+        if (env?.unlockRequirement?.(gameState)) {
             // Unlock the environment
             gameState.environmentsUnlocked.push(envId);
             
@@ -1118,7 +1169,7 @@ function checkEnvironmentUnlocks() {
  * @param {string} environmentId - ID of environment to switch to
  */
 function switchEnvironment(environmentId) {
-    if (!window.ENVIRONMENTS || !window.ENVIRONMENTS[environmentId]) {
+    if (!window.ENVIRONMENTS?.[environmentId]) {
         console.error('Environment not found:', environmentId);
         return;
     }

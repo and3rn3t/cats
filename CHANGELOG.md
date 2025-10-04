@@ -7,6 +7,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.1] - 2025-10-03 - "Achievement Expansion & Code Quality" 🏆
+
+### ✨ Added - New Achievements (16 Total)
+
+#### Collection Milestones (4 achievements)
+
+- **Master Collector** (Epic) - Collect 20 different cats
+- **Elite Collector** (Epic) - Collect 25 different cats
+- **Grand Master** (Legendary) - Collect 30 different cats
+- **Cat Master Supreme** (Legendary) - Collect all 40 cats! *(updated from 25)*
+
+#### Environment Unlock Achievements (4 achievements)
+
+- **Peak Explorer** (Uncommon) - Unlock the Snowy Peaks environment
+- **Desert Wanderer** (Rare) - Unlock the Golden Sands environment
+- **Urban Explorer** (Rare) - Unlock the Urban Jungle environment
+- **Beach Comber** (Epic) - Unlock the Tropical Paradise environment
+
+#### Environment Collection Achievements (5 achievements)
+
+- **Forest Guardian** (Rare) - Collect all 8 cats from the Mystic Forest
+- **Mountain Master** (Rare) - Collect all 8 cats from the Snowy Peaks
+- **Desert Sultan** (Epic) - Collect all 8 cats from the Golden Sands
+- **City Legend** (Epic) - Collect all 8 cats from the Urban Jungle
+- **Beach Boss** (Epic) - Collect all 8 cats from the Tropical Paradise
+
+#### Mini-Game Achievements (6 achievements)
+
+- **Game Enthusiast** (Common) - Play 10 mini-games
+- **Mini-Game Master** (Uncommon) - Play 50 mini-games
+- **High Scorer** (Rare) - Get a high score of 10+ in any mini-game
+- **Perfect Memory** (Epic) - Reach level 10 in Follow the Treat
+- **Lightning Reflexes** (Rare) - Score 30+ in Cat Toy Chase
+- **Hide & Seek Pro** (Epic) - Score 100+ in Hide and Seek
+
+### 🔧 Changed
+
+#### Mini-Games System
+
+- Added `gamesPlayed` counter to track total mini-games played
+- Mini-game high scores now sync to main `gameState` for achievement integration
+- Achievement checks trigger automatically after each game completion
+
+### 📊 Summary
+
+- **Total Achievements**: Expanded from 20 to 36 (+80% increase)
+- **Achievement Distribution**: Common (5), Uncommon (7), Rare (10), Epic (11), Legendary (3)
+- **Integration**: Seamless connection between environments, mini-games, and achievement systems
+- **Player Impact**: More long-term goals and replay value
+
+### 🧹 Changed - Code Quality Improvements
+
+#### Refactored Complex Functions
+
+- **`handleEncounterAction()`** (game.js)
+  - Reduced from 280+ lines to 40 lines
+  - Split into 6 focused functions
+  - Cognitive complexity reduced from 50 to <15
+  - Easier to test and maintain
+
+- **`renderEnvironmentSelector()`** (environments.js)
+  - Extracted `generateEnvironmentCard()` helper
+  - Reduced cognitive complexity from 16 to <15
+
+- **`handleSeekClick()`** (minigames.js)
+  - Extracted success/failure handlers
+  - Reduced cognitive complexity from 16 to <15
+
+#### Code Modernization
+
+- Applied optional chaining (`?.`) in 8 locations
+- More concise and readable null-safety checks
+- Reduced code verbosity
+
+### 📝 Documentation
+
+- Added `docs/PHASE_2.3_ACHIEVEMENTS_COMPLETE.md` - Achievement system details
+- Added `docs/PHASE_3_CODE_QUALITY_COMPLETE.md` - Refactoring documentation
+- Added `docs/PHASE_2_COMPLETE.md` - Phase 2 summary
+
+---
+
 ## [2.5.0] - 2025-10-03 - "Multi-Environment Expansion" 🌍
 
 ### 🎉 Major Release - Environmental Biomes

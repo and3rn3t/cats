@@ -93,7 +93,7 @@ function getAvailableEnvironments(state) {
         const env = ENVIRONMENTS[envId];
         
         // Check if unlocked
-        if (env.unlocked || (env.unlockRequirement && env.unlockRequirement(state))) {
+        if (env.unlocked || env.unlockRequirement?.(state)) {
             available.push(env);
         }
     }
@@ -111,7 +111,7 @@ function isEnvironmentUnlocked(environmentId, state) {
     const env = ENVIRONMENTS[environmentId];
     if (!env) return false;
     
-    return env.unlocked || (env.unlockRequirement && env.unlockRequirement(state));
+    return env.unlocked || env.unlockRequirement?.(state) || false;
 }
 
 /**
@@ -185,7 +185,7 @@ function checkEnvironmentUnlocks(state) {
         }
         
         // Check unlock requirement
-        if (env.unlockRequirement && env.unlockRequirement(state)) {
+        if (env.unlockRequirement?.(state)) {
             state.unlockedEnvironments.add(envId);
             newlyUnlocked.push(envId);
         }
@@ -237,6 +237,54 @@ function showEnvironmentUnlockNotification(environmentId) {
  * Render environment selector UI
  * @param {Object} state - Game state
  */
+/**
+ * Generate HTML for a single environment card
+ * @param {Object} env - Environment object
+ * @param {string} envId - Environment ID
+ * @param {Object} state - Game state
+ * @param {string} currentEnvId - Currently selected environment ID
+ * @returns {string} HTML string for the card
+ */
+function generateEnvironmentCard(env, envId, state, currentEnvId) {
+    const unlocked = isEnvironmentUnlocked(envId, state);
+    const active = envId === currentEnvId;
+    
+    const classes = [];
+    if (!unlocked) classes.push('locked');
+    if (active) classes.push('active');
+    
+    const catCount = env.catIds.length;
+    const collectedCount = env.catIds.filter(id => state.collectedCats.has(id)).length;
+    
+    const progressHTML = unlocked ? `
+        <div class="environment-progress">
+            <div class="progress-text">${collectedCount} / ${catCount}</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${(collectedCount / catCount) * 100}%"></div>
+            </div>
+        </div>
+    ` : `
+        <div class="environment-locked-text">${env.unlockMessage}</div>
+    `;
+    
+    return `
+        <button class="environment-card ${classes.join(' ')}"
+                data-environment="${envId}"
+                onclick="handleEnvironmentSelect('${envId}')"
+                ${!unlocked ? 'disabled' : ''}
+                aria-label="${env.name} - ${unlocked ? `${collectedCount} of ${catCount} cats collected` : 'Locked'}"
+                title="${unlocked ? env.description : env.unlockMessage}">
+            <div class="environment-icon">${unlocked ? env.icon : '🔒'}</div>
+            <div class="environment-name">${env.name}</div>
+            ${progressHTML}
+        </button>
+    `;
+}
+
+/**
+ * Render environment selector UI
+ * @param {Object} state - Game state
+ */
 function renderEnvironmentSelector(state) {
     const selector = document.getElementById('environment-selector');
     if (!selector) return;
@@ -247,37 +295,7 @@ function renderEnvironmentSelector(state) {
     
     for (const envId in ENVIRONMENTS) {
         const env = ENVIRONMENTS[envId];
-        const unlocked = isEnvironmentUnlocked(envId, state);
-        const active = envId === currentEnvId;
-        
-        const classes = [];
-        if (!unlocked) classes.push('locked');
-        if (active) classes.push('active');
-        
-        const catCount = env.catIds.length;
-        const collectedCount = env.catIds.filter(id => state.collectedCats.has(id)).length;
-        
-        html += `
-            <button class="environment-card ${classes.join(' ')}"
-                    data-environment="${envId}"
-                    onclick="handleEnvironmentSelect('${envId}')"
-                    ${!unlocked ? 'disabled' : ''}
-                    aria-label="${env.name} - ${unlocked ? `${collectedCount} of ${catCount} cats collected` : 'Locked'}"
-                    title="${unlocked ? env.description : env.unlockMessage}">
-                <div class="environment-icon">${unlocked ? env.icon : '🔒'}</div>
-                <div class="environment-name">${env.name}</div>
-                ${unlocked ? `
-                    <div class="environment-progress">
-                        <div class="progress-text">${collectedCount} / ${catCount}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(collectedCount / catCount) * 100}%"></div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="environment-locked-text">${env.unlockMessage}</div>
-                `}
-            </button>
-        `;
+        html += generateEnvironmentCard(env, envId, state, currentEnvId);
     }
     
     html += '</div>';
