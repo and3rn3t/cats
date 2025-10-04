@@ -145,10 +145,16 @@ function startMinigame(gameName) {
     
     // Hide selection, show game screen
     const selectionScreen = document.getElementById('game-selection');
-    const gameScreen = document.getElementById('game-screen');
+    const gameScreen = document.getElementById('minigame-screen');
     
-    if (selectionScreen) selectionScreen.style.display = 'none';
-    if (gameScreen) gameScreen.style.display = 'block';
+    if (!selectionScreen || !gameScreen) {
+        console.error('Game screen elements not found!');
+        alert('Error: Game screen elements not found. Please refresh the page.');
+        return;
+    }
+    
+    selectionScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
     
     // Start the appropriate game
     switch (gameName) {
@@ -161,6 +167,8 @@ function startMinigame(gameName) {
         case 'hideAndSeek':
             startHideAndSeek();
             break;
+        default:
+            console.error('Unknown game:', gameName);
     }
     
     if (window.playButtonClick) playButtonClick();
@@ -183,8 +191,11 @@ function startFollowTheTreat() {
     playerSequence = [];
     treatLevel = 1;
     
-    const gameArea = document.getElementById('game-area');
-    if (!gameArea) return;
+    const gameArea = document.getElementById('minigame-area');
+    if (!gameArea) {
+        console.error('Game area not found!');
+        return;
+    }
     
     gameArea.innerHTML = `
         <div class="minigame-header">
@@ -360,8 +371,11 @@ function startCatToyChase() {
     chaseScore = 0;
     chaseTimeLeft = 30;
     
-    const gameArea = document.getElementById('game-area');
-    if (!gameArea) return;
+    const gameArea = document.getElementById('minigame-area');
+    if (!gameArea) {
+        console.error('Game area not found!');
+        return;
+    }
     
     gameArea.innerHTML = `
         <div class="minigame-header">
@@ -468,7 +482,7 @@ function chaseGameOver() {
     
     minigameState.score = chaseScore;
     
-    const gameArea = document.getElementById('game-area');
+    const gameArea = document.getElementById('minigame-area');
     if (!gameArea) return;
     
     let message = `Game Over! You caught ${chaseScore} toys!`;
@@ -511,7 +525,7 @@ function startHideAndSeek() {
     seekRound = 1;
     seekScore = 0;
     
-    const gameArea = document.getElementById('game-area');
+    const gameArea = document.getElementById('minigame-area');
     if (!gameArea) return;
     
     gameArea.innerHTML = `
@@ -639,7 +653,7 @@ function seekGameOver() {
     
     // Add play again button
     setTimeout(() => {
-        const gameArea = document.getElementById('game-area');
+        const gameArea = document.getElementById('minigame-area');
         if (gameArea) {
             const playAgainBtn = document.createElement('button');
             playAgainBtn.id = 'play-again';

@@ -1577,6 +1577,16 @@ dialog#minigame-modal[open] {
     font-size: var(--font-xl);
 }
 
+/* Game selection and game screen visibility */
+#minigame-modal #game-selection {
+    display: block;
+}
+
+#minigame-modal #minigame-screen {
+    display: none;
+    min-height: 400px;
+}
+
 /* Game Selection Grid */
 .game-selection-grid {
     display: grid;
@@ -1629,11 +1639,6 @@ dialog#minigame-modal[open] {
     font-weight: bold;
     font-size: var(--font-md);
     opacity: 1;
-}
-
-/* Game Screen */
-#minigame-modal #game-screen {
-    min-height: 400px;
 }
 
 .minigame-header {

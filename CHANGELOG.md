@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.0] - 2024-10-03 - "Mini-Games" 🎮
+
+### ✨ Added - Interactive Mini-Games
+
+- **Mini-Games System** (`minigames.js`): Three interactive games to play with collected cats
+  - **Follow the Treat** 🍖: Memory/sequence game (Simon Says style)
+    - Watch and repeat treat sequences
+    - Progressive difficulty (adds one treat per level)
+    - 4-position grid (top-left, top-right, bottom-left, bottom-right)
+    - Visual and audio feedback
+    - High score tracking
+  
+  - **Cat Toy Chase** 🎾: Timing/reaction game
+    - Click the moving toy as many times as possible
+    - 30-second time limit
+    - Randomized toy movement
+    - Score tracking with high scores
+    - Fast-paced action
+  
+  - **Hide and Seek** 🙈: Observation/click game
+    - Find the hiding cat in boxes
+    - Progressive difficulty (3 → 16 boxes)
+    - 10 rounds per game
+    - Strategic guessing element
+    - Complete with success/failure feedback
+
+- **Mini-Games UI**:
+  - Modal dialog with game selection screen
+  - Cat-specific game context (shows which cat you're playing with)
+  - High score display for each game
+  - Clean, comic book styled interface
+  - Responsive design for all screen sizes
+  - Back to games navigation
+  - Play again functionality
+
+- **Score Persistence**:
+  - High scores saved to localStorage
+  - Separate scores for each game type
+  - New high score celebrations with sound effects
+  - Score display on game selection screen
+
+- **Integration**:
+  - "Play Mini-Games" button in cat details modal
+  - Seamless integration with existing sound system
+  - Uses established audio feedback (success/failure/button sounds)
+  - Accessible keyboard navigation
+  - ARIA labels for screen readers
+
+### 🐛 Fixed
+
+- Fixed duplicate ID conflict between main game canvas and mini-game modal
+  - Renamed mini-game elements to unique IDs (`minigame-screen`, `minigame-area`)
+  - Resolved `getElementById` returning wrong elements
+  - Ensured proper DOM element access in all game functions
+
+### 📚 Documentation
+
+- Added `docs/PHASE_2.2_MINIGAMES.md`: Complete mini-games implementation guide
+  - Game mechanics and scoring details
+  - Technical architecture documentation
+  - API reference for all functions
+  - Testing checklist
+  - Future enhancement ideas
+
+### 🎨 Styling
+
+- Added 280+ lines of mini-game CSS:
+  - Modal dialog styling
+  - Game selection grid layout
+  - Game-specific styles (treat-grid, chase-area, seek-grid)
+  - Animations (foundPulse, wrongShake)
+  - Responsive breakpoints for mobile devices
+  - Comic book aesthetic consistency
+
+---
+
 ## [2.3.0] - 2024-10-03 - "Sound & Music" 🎵
 
 ### ✨ Added - Sound System
