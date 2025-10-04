@@ -324,9 +324,7 @@ h1 {
 dialog {
     border: none;
     padding: 0;
-    background: transparent;
-    max-width: none;
-    max-height: none;
+    margin: 0;
 }
 
 dialog::backdrop {
@@ -334,32 +332,12 @@ dialog::backdrop {
     backdrop-filter: blur(2px);
 }
 
-/* Ensure dialogs are centered and styled */
-dialog#cat-details,
-dialog#encounter-panel {
+/* Cat Details Dialog */
+dialog#cat-details {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    margin: 0;
-}
-
-dialog#help-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-}
-
-#cat-details {
     background: var(--color-light);
     border: var(--border-thick) solid var(--color-dark);
     border-radius: var(--radius-lg);
@@ -370,8 +348,50 @@ dialog#help-modal {
     overflow: hidden;
     box-shadow: var(--shadow-xl);
     z-index: 1000;
-    display: flex;
     flex-direction: column;
+}
+
+dialog#cat-details[open] {
+    display: flex;
+}
+
+/* Encounter Panel Dialog */
+dialog#encounter-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-light);
+    border: var(--border-thick) solid var(--color-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    max-width: 600px;
+    width: 90%;
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    text-align: center;
+    will-change: transform, opacity;
+}
+
+dialog#encounter-panel[open] {
+    display: block;
+}
+
+/* Help Modal Dialog */
+dialog#help-modal {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow-y: auto;
+}
+
+dialog#help-modal[open] {
+    display: flex;
 }
 
 /* Ensure content fits without scroll on most screens */
@@ -480,20 +500,6 @@ dialog#help-modal {
     margin: 0 0 var(--space-sm) 0;
     font-size: var(--font-base);
     color: var(--color-purple);
-}
-
-/* Encounter Panel */
-#encounter-panel {
-    background: var(--color-light);
-    border: var(--border-thick) solid var(--color-dark);
-    border-radius: var(--radius-lg);
-    padding: var(--space-2xl);
-    max-width: 600px;
-    width: 90%;
-    box-shadow: var(--shadow-xl);
-    z-index: 1000;
-    text-align: center;
-    will-change: transform, opacity;
 }
 
 /* Fieldset styling for encounter actions */
@@ -642,6 +648,57 @@ dialog#help-modal {
 #explore-btn:focus {
     background: linear-gradient(135deg, #ffe44d 0%, #ffb732 100%);
     transform: translateY(-5px) rotate(-2deg) scale(1.05);
+}
+
+/* Mute button styling */
+#mute-btn {
+    background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+}
+
+#mute-btn:hover,
+#mute-btn:focus {
+    background: linear-gradient(135deg, #ab47bc 0%, #7e57c2 100%);
+}
+
+/* Volume slider styling */
+#volume-slider {
+    width: 100%;
+    margin: var(--space-sm) 0;
+    cursor: pointer;
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--color-purple);
+    cursor: pointer;
+    border-radius: 50%;
+    border: var(--border-thin) solid var(--color-dark);
+}
+
+#volume-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--color-purple);
+    cursor: pointer;
+    border-radius: 50%;
+    border: var(--border-thin) solid var(--color-dark);
+}
+
+#volume-slider::-webkit-slider-track {
+    height: 8px;
+    background: var(--color-gray-light);
+    border-radius: var(--radius-sm);
+    border: var(--border-thin) solid var(--color-dark);
+}
+
+#volume-slider::-moz-range-track {
+    height: 8px;
+    background: var(--color-gray-light);
+    border-radius: var(--radius-sm);
+    border: var(--border-thin) solid var(--color-dark);
 }
 
 @keyframes pulse {

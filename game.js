@@ -39,6 +39,13 @@ function initGame() {
         return;
     }
     
+    // Ensure all dialogs are closed on init
+    document.querySelectorAll('dialog').forEach(dialog => {
+        if (dialog.hasAttribute('open')) {
+            dialog.close();
+        }
+    });
+    
     // Verify CAT_BREEDS is loaded
     if (!window.CAT_BREEDS || !Array.isArray(window.CAT_BREEDS)) {
         initRetryCount++;
@@ -144,12 +151,27 @@ function loadGameState() {
 function setupEventListeners() {
     // Main control buttons
     document.getElementById('explore-btn')?.addEventListener('click', exploreForCats);
-    document.getElementById('collection-btn')?.addEventListener('click', scrollToCollection);
-    document.getElementById('achievements-btn')?.addEventListener('click', showAchievements);
-    document.getElementById('analytics-btn')?.addEventListener('click', showAnalytics);
-    document.getElementById('help-btn')?.addEventListener('click', showHelp);
+    document.getElementById('collection-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        scrollToCollection();
+    });
+    document.getElementById('achievements-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        showAchievements();
+    });
+    document.getElementById('analytics-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        showAnalytics();
+    });
+    document.getElementById('help-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        showHelp();
+    });
     document.getElementById('reset-btn')?.addEventListener('click', resetGame);
-    document.getElementById('close-details')?.addEventListener('click', closeCatDetails);
+    document.getElementById('close-details')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        closeCatDetails();
+    });
     
     // Close panel buttons
     document.querySelectorAll('.close-panel-btn').forEach(btn => {
@@ -162,9 +184,18 @@ function setupEventListeners() {
     });
     
     // Encounter action buttons
-    document.getElementById('approach-btn')?.addEventListener('click', () => handleEncounterAction('approach'));
-    document.getElementById('offer-treat-btn')?.addEventListener('click', () => handleEncounterAction('treat'));
-    document.getElementById('observe-btn')?.addEventListener('click', () => handleEncounterAction('observe'));
+    document.getElementById('approach-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        handleEncounterAction('approach');
+    });
+    document.getElementById('offer-treat-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        handleEncounterAction('treat');
+    });
+    document.getElementById('observe-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        handleEncounterAction('observe');
+    });
     
     // Dialog backdrop click to close (for help modal)
     const helpModal = document.getElementById('help-modal');
@@ -348,6 +379,11 @@ function exploreForCats() {
         return;
     }
     
+    // Play exploration sound
+    if (window.playExplore) {
+        playExplore();
+    }
+    
     // Reduce energy
     gameState.playerEnergy = Math.max(0, gameState.playerEnergy - 10);
     gameState.explorationCount = (gameState.explorationCount || 0) + 1;
@@ -434,6 +470,11 @@ function showEncounter(cat) {
     
     gameState.currentEncounter = cat;
     gameState.currentEncounterAttempts = 0; // Reset attempt counter
+    
+    // Play encounter sound
+    if (window.playEncounter) {
+        playEncounter();
+    }
     
     const panel = document.getElementById('encounter-panel');
     const catDiv = document.getElementById('encounter-cat');
@@ -635,6 +676,16 @@ function handleEncounterAction(action) {
         
         alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!${strategyFeedback}`);
         
+        // Play success sound and cat meow
+        if (window.playSuccess) {
+            playSuccess();
+        }
+        setTimeout(() => {
+            if (window.playCatMeow) {
+                playCatMeow(cat.stats.rarity);
+            }
+        }, 400);
+        
         // Close encounter and update display
         document.getElementById('encounter-panel')?.close();
         renderCollection();
@@ -648,6 +699,12 @@ function handleEncounterAction(action) {
         gameState.currentEncounterAttempts = 0;
     } else {
         // Failed attempt - give helpful feedback
+        
+        // Play failure sound
+        if (window.playFailure) {
+            playFailure();
+        }
+        
         let failureAdvice = '\n\n💡 ';
         if (cat.stats.friendliness > 80) {
             failureAdvice += 'This cat is very friendly - try approaching directly!';
@@ -873,6 +930,11 @@ function startEnergyRegeneration() {
             gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
             updatePlayerStats();
             saveGameState();
+            
+            // Play energy gain sound
+            if (window.playEnergyGain) {
+                playEnergyGain();
+            }
             
             // Visual feedback for energy gain
             if (window.createEnergyPulse) {

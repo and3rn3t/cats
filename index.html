@@ -6,7 +6,7 @@
     <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
     <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
-    <link rel="stylesheet" href="styles.css?v=2.0.5">
+    <link rel="stylesheet" href="styles.css?v=2.3.2">
 </head>
 <body>
     <div id="game-container">
@@ -33,29 +33,6 @@
                 <h2>Your Cat Collection</h2>
                 <div id="cat-grid" role="grid" aria-label="Grid of cat cards"></div>
             </section>
-
-            <!-- Cat Details Panel -->
-            <dialog id="cat-details" aria-labelledby="detail-name">
-                <button id="close-details" class="close-btn" aria-label="Close cat details">×</button>
-                <div id="cat-portrait" aria-hidden="true"></div>
-                <h2 id="detail-name">Cat Details</h2>
-                <p id="detail-description"></p>
-                <div id="detail-stats" aria-label="Cat statistics"></div>
-                <div id="detail-origin"></div>
-            </dialog>
-
-            <!-- Wild Cat Encounter -->
-            <dialog id="encounter-panel" aria-labelledby="encounter-title">
-                <h2 id="encounter-title">A Wild Cat Appears!</h2>
-                <div id="encounter-cat" aria-hidden="true"></div>
-                <p id="encounter-text"></p>
-                <fieldset id="encounter-actions" aria-label="Choose how to approach the cat">
-                    <legend class="visually-hidden">Choose your approach</legend>
-                    <button id="approach-btn" class="action-btn" aria-label="Approach the cat gently">🤝 Approach Gently</button>
-                    <button id="offer-treat-btn" class="action-btn" aria-label="Offer the cat a treat">🍖 Offer Treat</button>
-                    <button id="observe-btn" class="action-btn" aria-label="Observe the cat from a distance">👀 Observe</button>
-                </fieldset>
-            </dialog>
 
             <!-- Controls -->
             <nav id="controls" aria-label="Main game controls">
@@ -84,6 +61,29 @@
                 <div id="analytics-content"></div>
             </aside>
         </main>
+
+        <!-- Cat Details Dialog -->
+        <dialog id="cat-details" aria-labelledby="detail-name">
+            <button id="close-details" class="close-btn" aria-label="Close cat details">×</button>
+            <div id="cat-portrait" aria-hidden="true"></div>
+            <h2 id="detail-name">Cat Details</h2>
+            <p id="detail-description"></p>
+            <div id="detail-stats" aria-label="Cat statistics"></div>
+            <div id="detail-origin"></div>
+        </dialog>
+
+        <!-- Wild Cat Encounter Dialog -->
+        <dialog id="encounter-panel" aria-labelledby="encounter-title">
+            <h2 id="encounter-title">A Wild Cat Appears!</h2>
+            <div id="encounter-cat" aria-hidden="true"></div>
+            <p id="encounter-text"></p>
+            <fieldset id="encounter-actions" aria-label="Choose how to approach the cat">
+                <legend class="visually-hidden">Choose your approach</legend>
+                <button id="approach-btn" class="action-btn" aria-label="Approach the cat gently">🤝 Approach Gently</button>
+                <button id="offer-treat-btn" class="action-btn" aria-label="Offer the cat a treat">🍖 Offer Treat</button>
+                <button id="observe-btn" class="action-btn" aria-label="Observe the cat from a distance">👀 Observe</button>
+            </fieldset>
+        </dialog>
 
         <!-- Help Modal -->
         <dialog id="help-modal" aria-labelledby="help-title">
@@ -144,6 +144,7 @@
     <script src="achievements.js?v=2.0.6"></script>
     <script src="visuals.js?v=2.0.0"></script>
     <script src="analytics.js?v=2.0.6"></script>
-    <script src="game.js?v=2.1.0"></script>
+    <script src="audio.js?v=2.3.2"></script>
+    <script src="game.js?v=2.3.2"></script>
 </body>
 </html>
