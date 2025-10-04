@@ -17,6 +17,7 @@ Successfully integrated the environment system into the core game logic. The gam
 ### 1. Game State Updates (game.js)
 
 #### Added Environment State Variables
+
 ```javascript
 currentEnvironment: 'forest',
 environmentProgress: {
@@ -32,21 +33,25 @@ environmentsUnlocked: ['forest']
 ### 2. Core Game Functions Updated
 
 #### `selectRandomCat()` - Now Filters by Environment
+
 - Only shows cats from the current environment
 - Provides environment-specific messages when all cats are collected
 - Maintains rarity-based weighted selection
 
 #### `exploreForCats()` - Tracks Environment Visits
+
 - Increments visit counter for current environment
 - Tracks which environment is being explored
 
 #### `saveGameState()` - Persists Environment Data
+
 - Saves current environment
 - Saves environment progress (with Set → Array conversion)
 - Saves unlocked environments list
 - Version marked as 2.5.0
 
 #### `loadGameState()` - Loads Environment Data
+
 - Restores current environment
 - Restores environment progress (with Array → Set conversion)
 - Handles migration from older saves (initializes defaults)
@@ -55,12 +60,14 @@ environmentsUnlocked: ['forest']
 ### 3. New Functions Added
 
 #### `checkEnvironmentUnlocks()`
+
 - Automatically checks if new environments should be unlocked
 - Shows notification when new environment is available
 - Called after each successful cat collection
 - Updates environment selector UI
 
 #### `switchEnvironment(environmentId)`
+
 - Validates environment exists and is unlocked
 - Updates game state with new environment
 - Redraws canvas scene with new colors
@@ -70,11 +77,13 @@ environmentsUnlocked: ['forest']
 ### 4. Visual Updates
 
 #### Canvas Scene Rendering
+
 - `initializeGradients()` - Uses environment-specific sky and ground colors
 - `drawEnvironment()` - Applies environment-specific ground gradient
 - Gradients update when switching environments
 
 #### Collection Display
+
 - Added environment badge (icon) to each cat card
 - Badge shows in top-right corner of card
 - Visible on both collected and locked cats
@@ -82,12 +91,14 @@ environmentsUnlocked: ['forest']
 
 ### 5. Environment Tracking
 
-#### On Cat Collection:
+#### On Cat Collection
+
 - Tracks which cats were discovered in which environment
 - Adds to `environmentProgress[env].discovered` Set
 - Enables per-environment statistics
 
-#### On Exploration:
+#### On Exploration
+
 - Increments visit counter for current environment
 - Tracks exploration patterns per environment
 
@@ -114,27 +125,32 @@ environmentsUnlocked: ['forest']
 ## Key Features
 
 ### ✅ Environment Filtering
+
 - Cats only appear from current environment during exploration
 - 8 cats per environment available
 - Maintains rarity distribution within each environment
 
 ### ✅ Environment Switching
+
 - Seamless switching between unlocked environments
 - Canvas scene updates with environment-specific colors
 - UI updates to reflect current environment
 - Locked environments show requirements
 
 ### ✅ Progress Tracking
+
 - Per-environment discovery tracking
 - Per-environment visit counting
 - Overall collection progress maintained
 
 ### ✅ Save/Load
+
 - Complete environment state persistence
 - Backward compatible with older saves
 - Graceful migration handling
 
 ### ✅ Environment Unlocks
+
 - Automatic checking after cat collection
 - Notification system for new unlocks
 - Requirements based on total collection
@@ -144,6 +160,7 @@ environmentsUnlocked: ['forest']
 ## Testing Checklist
 
 ### Basic Functionality
+
 - ✅ Game initializes with forest environment
 - ✅ Cats only appear from current environment
 - ✅ Environment switching works
@@ -151,6 +168,7 @@ environmentsUnlocked: ['forest']
 - ✅ Canvas colors update with environment
 
 ### Environment System
+
 - ✅ Forest starts unlocked
 - ✅ Other environments start locked
 - ✅ Unlock notifications appear at thresholds
@@ -158,12 +176,14 @@ environmentsUnlocked: ['forest']
 - ✅ Environment selector updates correctly
 
 ### Collection
+
 - ✅ Environment badges visible on cat cards
 - ✅ All 40 cats are collectable
 - ✅ 8 cats per environment
 - ✅ Progress tracked per environment
 
 ### Edge Cases
+
 - ✅ Old saves migrate gracefully
 - ✅ Missing environment data handled
 - ✅ All cats collected in one environment handled
@@ -174,10 +194,12 @@ environmentsUnlocked: ['forest']
 ## Known Issues / Notes
 
 ### Minor Warnings
+
 - Optional chaining suggestions (code style, not errors)
 - Cognitive complexity warning on handleEncounterAction() (pre-existing)
 
 ### Future Enhancements (Not in Scope)
+
 - Environment-specific achievements (Step 4)
 - Environment-specific visuals (trees, clouds vary by biome)
 - Animation transitions between environments
@@ -187,7 +209,7 @@ environmentsUnlocked: ['forest']
 
 ## What's Still Needed
 
-### Remaining Tasks for v2.5.0:
+### Remaining Tasks for v2.5.0
 
 1. **Update achievements.js** (if exists)
    - Add environment-specific achievements
@@ -226,6 +248,7 @@ environmentsUnlocked: ['forest']
 ## Next Steps
 
 **Run comprehensive testing:**
+
 1. Start fresh game → Verify forest only cats
 2. Collect 5 cats → Verify mountain unlocks
 3. Switch to mountain → Verify mountain cats
