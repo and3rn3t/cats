@@ -43,9 +43,20 @@ const MAX_INIT_RETRIES = 20; // Max 1 second of retries (20 * 50ms)
  * Sets up initial state, loads saved data, and renders the UI
  */
 function initGame() {
+    console.log('🎮 initGame called');
+    
+    // Ensure loading overlay is visible
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        console.log('✅ Loading overlay should be visible');
+    }
+    
     // Verify required DOM elements exist
     if (!canvas || !ctx) {
         console.error('Canvas element not found. Game cannot initialize.');
+        hideLoadingOverlay();
         return;
     }
     
@@ -61,22 +72,28 @@ function initGame() {
         initRetryCount++;
         if (initRetryCount >= MAX_INIT_RETRIES) {
             console.error('❌ Failed to load CAT_BREEDS after', MAX_INIT_RETRIES, 'retries');
+            hideLoadingOverlay();
             alert('Failed to load cat data. Please refresh the page.');
             return;
         }
         console.log('⏳ Waiting for cat data... (attempt', initRetryCount, 'of', MAX_INIT_RETRIES + ')');
+        updateLoadingText(`Loading cat data... (${initRetryCount}/${MAX_INIT_RETRIES})`);
         setTimeout(initGame, 50); // Retry after 50ms
         return;
     }
     
     console.log('✅ Game initializing with', window.CAT_BREEDS.length, 'cat breeds');
 
+    updateLoadingText('Loading your save data...');
     loadGameState();
     
     // Check if this is the first time playing
     const isFirstTime = gameState.collectedCats.size === 0 && gameState.explorationCount === 0;
     
+    updateLoadingText('Rendering collection...');
     renderCollection();
+    
+    updateLoadingText('Initializing game systems...');
     updatePlayerStats();
     initializeGradients();
     drawScene();
@@ -99,10 +116,32 @@ function initGame() {
         renderEnvironmentSelector(gameState);
     }
     
-    // Show welcome message for first-time players
-    if (isFirstTime) {
-        setTimeout(showWelcomeMessage, 500);
+    // Initialize animation system (Phase 4.1)
+    if (window.initAnimations) {
+        initAnimations();
     }
+    
+    // Calculate minimum display time for loading overlay
+    const initStartTime = Date.now();
+    const MIN_LOADING_DISPLAY = 1500; // Minimum 1.5 seconds
+    
+    // Hide loading overlay (Phase 4.2)
+    updateLoadingText('Ready!');
+    
+    // Ensure loading overlay displays for minimum time
+    const elapsed = Date.now() - initStartTime;
+    const remainingTime = Math.max(MIN_LOADING_DISPLAY - elapsed, 800);
+    
+    console.log(`⏱️ Init took ${elapsed}ms, waiting ${remainingTime}ms before hiding overlay`);
+    
+    setTimeout(() => {
+        hideLoadingOverlay();
+        
+        // Show welcome message for first-time players after overlay is fully hidden
+        if (isFirstTime) {
+            setTimeout(showWelcomeMessage, 300);
+        }
+    }, remainingTime);
 }
 
 /**
@@ -215,6 +254,13 @@ function setupEventListeners() {
         if (window.playButtonClick) playButtonClick();
         scrollToCollection();
     });
+    
+    // Close button for collection panel
+    document.getElementById('close-collection-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        scrollToCollection(); // Toggle it off
+    });
+    
     document.getElementById('achievements-btn')?.addEventListener('click', () => {
         if (window.playButtonClick) playButtonClick();
         showAchievements();
@@ -431,21 +477,21 @@ function drawSceneText() {
     ctx.textAlign = 'center';
     ctx.fillText('🌳 The Wild Cat Sanctuary 🌳', canvas.width / 2, 35);
     
-    // Instruction text - make it more visible
-    ctx.font = 'bold 18px "Comic Sans MS"';
+    // Instruction text - positioned higher to avoid being covered
+    ctx.font = 'bold 16px "Comic Sans MS"';
     ctx.fillStyle = '#f5576c';
-    ctx.fillText('👇 Click "Explore for Cats" below! 👇', canvas.width / 2, canvas.height - 25);
+    ctx.fillText('👇 Press "Explore for Cats" below to start! 👇', canvas.width / 2, canvas.height - 15);
     
     // Show stats hint
     if (gameState.collectedCats.size === 0) {
         ctx.font = 'italic 16px "Comic Sans MS"';
         ctx.fillStyle = '#666';
-        ctx.fillText('Start your adventure to discover 25 unique cat breeds!', canvas.width / 2, canvas.height / 2 + 20);
+        ctx.fillText('Start your adventure to discover 40 unique cat breeds!', canvas.width / 2, canvas.height / 2 + 20);
     } else {
         // Show collection progress
-        ctx.font = 'bold 16px "Comic Sans MS"';
+        ctx.font = 'bold 18px "Comic Sans MS"';
         ctx.fillStyle = '#4caf50';
-        ctx.fillText(`${gameState.collectedCats.size} / 25 cats collected!`, canvas.width / 2, canvas.height / 2 + 20);
+        ctx.fillText(`${gameState.collectedCats.size} / 40 cats collected!`, canvas.width / 2, canvas.height / 2 + 20);
     }
 }
 
@@ -454,11 +500,33 @@ function drawSceneText() {
  * Triggers a random cat encounter based on rarity
  */
 function exploreForCats() {
+    const exploreBtn = document.getElementById('explore-btn');
+    
     if (gameState.playerEnergy < 10) {
+        // Shake button to indicate insufficient energy (Phase 4.1)
+        if (window.shakeElement && exploreBtn) {
+            shakeElement(exploreBtn);
+        }
         alert('You need more energy! Wait for it to regenerate or refresh the page.');
         return;
     }
     
+    // Add loading state (Phase 4.2)
+    if (exploreBtn) {
+        addButtonLoading(exploreBtn);
+    }
+    
+    // Simulate brief loading for exploration
+    setTimeout(() => {
+        performExploration(exploreBtn);
+    }, 400);
+}
+
+/**
+ * Perform the actual exploration after loading state
+ * @param {HTMLElement} exploreBtn - Explore button element
+ */
+function performExploration(exploreBtn) {
     // Play exploration sound
     if (window.playExplore) {
         playExplore();
@@ -489,6 +557,11 @@ function exploreForCats() {
     
     // Select a cat based on rarity
     const cat = selectRandomCat();
+    
+    // Remove loading state (Phase 4.2)
+    if (exploreBtn) {
+        removeButtonLoading(exploreBtn);
+    }
     
     if (!cat) {
         alert('The forest is quiet... try again!');
@@ -609,6 +682,11 @@ function showEncounter(cat) {
     text.innerHTML = `<strong>${cat.name}</strong><br>${randomFact}<br>${statsHTML}`;
     
     panel.showModal();
+    
+    // Add entrance animation (Phase 4.1)
+    if (window.animateDialogOpen) {
+        animateDialogOpen(panel);
+    }
 }
 
 /**
@@ -794,6 +872,17 @@ function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strate
     // Show strategy feedback
     const strategyFeedback = generateStrategyFeedback(strategyBonus);
     
+    // Add success animation (Phase 4.1)
+    const encounterPanel = document.getElementById('encounter-panel');
+    if (window.animateEncounterSuccess && encounterPanel) {
+        animateEncounterSuccess(encounterPanel);
+    }
+    
+    // Create particle effect
+    if (window.createParticlesOnElement && encounterPanel) {
+        createParticlesOnElement(encounterPanel, '✨', 10);
+    }
+    
     alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!${strategyFeedback}`);
     
     // Play success sound and cat meow
@@ -811,6 +900,17 @@ function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strate
     renderCollection();
     updatePlayerStats();
     
+    // Celebrate milestones
+    if (window.celebrateMilestone) {
+        celebrateMilestone(gameState.collectedCats.size);
+    }
+    
+    // Animate stats update
+    const statsElement = document.getElementById('cats-collected');
+    if (window.animateStatsUpdate && statsElement) {
+        animateStatsUpdate(statsElement);
+    }
+    
     // Show the new cat details with enhanced portrait
     setTimeout(() => showCatDetails(cat.id), 500);
     
@@ -825,6 +925,12 @@ function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strate
  * @param {number} attemptNumber - Which attempt this was (1 or 2)
  */
 function processFailedEncounter(cat, attemptNumber) {
+    // Add failure animation (Phase 4.1)
+    const encounterPanel = document.getElementById('encounter-panel');
+    if (window.animateEncounterFailure && encounterPanel) {
+        animateEncounterFailure(encounterPanel);
+    }
+    
     // Play failure sound
     if (window.playFailure) {
         playFailure();
@@ -902,6 +1008,8 @@ function renderCollection() {
         return;
     }
     
+    console.log('🎨 Rendering collection...');
+    
     // Clear existing content
     grid.innerHTML = '';
     
@@ -912,11 +1020,14 @@ function renderCollection() {
         return;
     }
     
-    window.CAT_BREEDS.forEach(cat => {
+    console.log(`   Found ${window.CAT_BREEDS.length} breeds, ${gameState.collectedCats.size} collected`);
+    
+    window.CAT_BREEDS.forEach((cat, index) => {
         const card = document.createElement('div');
         const isCollected = gameState.collectedCats.has(cat.id);
         
         card.className = `cat-card ${isCollected ? '' : 'locked'}`;
+        card.setAttribute('data-rarity', cat.stats.rarity); // For legendary sparkles
         
         // Get environment icon (v2.5.0)
         const envIcon = window.ENVIRONMENTS?.[cat.environment]?.icon || '🌍';
@@ -928,6 +1039,12 @@ function renderCollection() {
                 <span class="rarity rarity-${cat.stats.rarity}">${cat.stats.rarity}</span>
                 <span class="environment-badge" title="${cat.environment}">${envIcon}</span>
             `;
+            
+            // Add reveal animation with staggered delay (Phase 4.1)
+            if (window.animateCatCardReveal) {
+                animateCatCardReveal(card, index * 30);
+            }
+            
             // Use arrow function to avoid creating new function each time
             card.addEventListener('click', () => showCatDetails(cat.id));
             // Add keyboard accessibility
@@ -1024,6 +1141,12 @@ function showCatDetails(catId) {
     statsDiv.appendChild(playButton);
     
     modal.showModal();
+    
+    // Add entrance animation (Phase 4.1)
+    if (window.animateDialogOpen) {
+        animateDialogOpen(modal);
+    }
+    
     // Focus on close button for accessibility
     document.getElementById('close-details')?.focus();
 }
@@ -1034,7 +1157,14 @@ function showCatDetails(catId) {
 function closeCatDetails() {
     const modal = document.getElementById('cat-details');
     if (modal) {
-        modal.close();
+        // Add close animation (Phase 4.1)
+        if (window.animateDialogClose) {
+            animateDialogClose(modal).then(() => {
+                modal.close();
+            });
+        } else {
+            modal.close();
+        }
     }
 }
 
@@ -1059,18 +1189,47 @@ function scrollToCollection() {
     const collectionPanel = document.getElementById('collection-panel');
     const collectionBtn = document.getElementById('collection-btn');
     
-    if (!collectionPanel) return;
+    console.log('📚 scrollToCollection called');
+    console.log('   Collection panel:', collectionPanel);
+    console.log('   Has visible class:', collectionPanel?.classList.contains('visible'));
+    
+    if (!collectionPanel) {
+        console.error('❌ Collection panel not found!');
+        return;
+    }
     
     // Toggle visibility
     if (collectionPanel.classList.contains('visible')) {
         collectionPanel.classList.remove('visible');
         if (collectionBtn) collectionBtn.textContent = '📚 View Collection';
+        console.log('✅ Collection hidden');
     } else {
         collectionPanel.classList.add('visible');
         if (collectionBtn) collectionBtn.textContent = '📚 Hide Collection';
-        // Scroll to it smoothly
+        console.log('✅ Collection should be visible now');
+        console.log('   Display style:', window.getComputedStyle(collectionPanel).display);
+        console.log('   Z-index:', window.getComputedStyle(collectionPanel).zIndex);
+        console.log('   Position:', window.getComputedStyle(collectionPanel).position);
+        console.log('   Bounding rect:', collectionPanel.getBoundingClientRect());
+        console.log('   Children count:', collectionPanel.children.length);
+        
+        const catGrid = document.getElementById('cat-grid');
+        if (catGrid) {
+            console.log('   Grid children:', catGrid.children.length);
+            console.log('   Grid display:', window.getComputedStyle(catGrid).display);
+            console.log('   Grid height:', window.getComputedStyle(catGrid).height);
+            console.log('   Grid bounding rect:', catGrid.getBoundingClientRect());
+            if (catGrid.children.length > 0) {
+                const firstCard = catGrid.children[0];
+                console.log('   First card display:', window.getComputedStyle(firstCard).display);
+                console.log('   First card height:', window.getComputedStyle(firstCard).height);
+                console.log('   First card rect:', firstCard.getBoundingClientRect());
+            }
+        }
+        
+        // Scroll to it smoothly - bring to top of viewport
         setTimeout(() => {
-            collectionPanel.scrollIntoView({ behavior: 'smooth' });
+            collectionPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     }
 }
@@ -1082,6 +1241,12 @@ function showHelp() {
     const modal = document.getElementById('help-modal');
     if (modal) {
         modal.showModal();
+        
+        // Add entrance animation (Phase 4.1)
+        if (window.animateDialogOpen) {
+            animateDialogOpen(modal);
+        }
+        
         // Focus on close button for accessibility
         modal.querySelector('.close-btn')?.focus();
     }
@@ -1093,7 +1258,14 @@ function showHelp() {
 function closeHelp() {
     const modal = document.getElementById('help-modal');
     if (modal) {
-        modal.close();
+        // Add close animation (Phase 4.1)
+        if (window.animateDialogClose) {
+            animateDialogClose(modal).then(() => {
+                modal.close();
+            });
+        } else {
+            modal.close();
+        }
     }
 }
 
@@ -1110,6 +1282,18 @@ function startEnergyRegeneration() {
     energyRegenInterval = setInterval(() => {
         if (gameState.playerEnergy < 100) {
             gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
+            
+            // Add regeneration animation (Phase 4.1)
+            const energyElement = document.getElementById('player-energy');
+            if (window.animateEnergyRegen && energyElement) {
+                animateEnergyRegen(energyElement, true);
+                
+                // Remove animation after a moment
+                setTimeout(() => {
+                    animateEnergyRegen(energyElement, false);
+                }, 2000);
+            }
+            
             updatePlayerStats();
             saveGameState();
             
@@ -1237,7 +1421,13 @@ function handleKeyboardInput(e) {
 function showAchievements() {
     const panel = document.getElementById('achievements-panel');
     if (panel) {
-        panel.classList.remove('hidden');
+        // Add slide animation (Phase 4.1)
+        if (window.animatePanelOpen) {
+            animatePanelOpen(panel);
+        } else {
+            panel.classList.remove('hidden');
+        }
+        
         if (window.renderAchievementsPanel) {
             renderAchievementsPanel(gameState);
         }
@@ -1250,7 +1440,12 @@ function showAchievements() {
 function closeAchievements() {
     const panel = document.getElementById('achievements-panel');
     if (panel) {
-        panel.classList.add('hidden');
+        // Add slide animation (Phase 4.1)
+        if (window.animatePanelClose) {
+            animatePanelClose(panel);
+        } else {
+            panel.classList.add('hidden');
+        }
     }
 }
 
@@ -1260,7 +1455,13 @@ function closeAchievements() {
 function showAnalytics() {
     const panel = document.getElementById('analytics-panel');
     if (panel) {
-        panel.classList.remove('hidden');
+        // Add slide animation (Phase 4.1)
+        if (window.animatePanelOpen) {
+            animatePanelOpen(panel);
+        } else {
+            panel.classList.remove('hidden');
+        }
+        
         if (window.renderAnalyticsDashboard) {
             renderAnalyticsDashboard(gameState);
         }
@@ -1273,7 +1474,12 @@ function showAnalytics() {
 function closeAnalytics() {
     const panel = document.getElementById('analytics-panel');
     if (panel) {
-        panel.classList.add('hidden');
+        // Add slide animation (Phase 4.1)
+        if (window.animatePanelClose) {
+            animatePanelClose(panel);
+        } else {
+            panel.classList.add('hidden');
+        }
     }
 }
 
@@ -1284,18 +1490,20 @@ function showWelcomeMessage() {
     const message = `
 🐱 Welcome to Cat Collector! 🐱
 
-You're about to embark on an adventure to discover 25 unique cat breeds from around the world!
+You're about to embark on an adventure to discover 40 unique cat breeds from around the world!
 
-🔍 Click "Explore for Cats" to start finding cats
+HOW TO PLAY:
+🔍 Press "Explore for Cats" to search for cats
 ⚡ Each exploration costs 10 energy
 💚 Energy regenerates over time (1 point every 30 seconds)
+🌍 Discover different environments as you collect cats
 🏆 Unlock achievements as you play
 📊 Track your progress in Analytics
 
 Ready to meet your first cat?
     `;
     
-    if (confirm(message + '\n\nClick OK to get started!')) {
+    if (confirm(message + '\n\nPress OK to start your adventure!')) {
         // Give player a boost by showing them their first cat immediately
         exploreForCats();
     }
@@ -1327,6 +1535,93 @@ function resetGame() {
     } catch (error) {
         console.error('Failed to reset game:', error);
         alert('❌ Failed to reset game. Please try clearing your browser cache manually.');
+    }
+}
+
+/**
+ * Update loading overlay text (Phase 4.2)
+ * @param {string} text - Loading text to display
+ */
+function updateLoadingText(text) {
+    const loadingText = document.querySelector('.loading-text');
+    if (loadingText) {
+        loadingText.textContent = text;
+    }
+}
+
+/**
+ * Hide loading overlay (Phase 4.2)
+ */
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-busy', 'false');
+        
+        // Remove from DOM after transition (increased to match --anim-duration-slow)
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 600); // Match CSS transition duration
+    }
+}
+
+/**
+ * Show loading overlay (Phase 4.2)
+ */
+function showLoadingOverlay(text = 'Loading...') {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-busy', 'true');
+        updateLoadingText(text);
+    }
+}
+
+/**
+ * Create skeleton loading cards for collection (Phase 4.2)
+ * @param {number} count - Number of skeleton cards to create
+ */
+function renderSkeletonCards(count = 12) {
+    const grid = document.getElementById('cat-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    grid.classList.add('skeleton-grid');
+    
+    for (let i = 0; i < count; i++) {
+        const card = document.createElement('div');
+        card.className = 'skeleton-card';
+        card.innerHTML = `
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-title"></div>
+            <div class="skeleton-text"></div>
+        `;
+        grid.appendChild(card);
+    }
+}
+
+/**
+ * Add loading state to button (Phase 4.2)
+ * @param {HTMLElement} button - Button element
+ */
+function addButtonLoading(button) {
+    if (button && !button.classList.contains('loading')) {
+        button.classList.add('loading');
+        button.setAttribute('aria-busy', 'true');
+        button.disabled = true;
+    }
+}
+
+/**
+ * Remove loading state from button (Phase 4.2)
+ * @param {HTMLElement} button - Button element
+ */
+function removeButtonLoading(button) {
+    if (button) {
+        button.classList.remove('loading');
+        button.setAttribute('aria-busy', 'false');
+        button.disabled = false;
     }
 }
 

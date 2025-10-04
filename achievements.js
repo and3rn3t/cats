@@ -473,6 +473,18 @@ function showAchievementNotification(achievement) {
     // Trigger animation
     setTimeout(() => notification.classList.add('show'), 10);
     
+    // Add celebration effects (Phase 4.1)
+    if (window.createParticlesOnElement) {
+        createParticlesOnElement(notification, '⭐', 5);
+    }
+    
+    // Special effects for rare achievements
+    if (achievement.rarity === 'legendary') {
+        if (window.createConfetti) {
+            createConfetti(3000);
+        }
+    }
+    
     // Remove after 5 seconds
     setTimeout(() => {
         notification.classList.remove('show');

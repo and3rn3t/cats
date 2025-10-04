@@ -6,9 +6,19 @@
     <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
     <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
-    <link rel="stylesheet" href="styles.css?v=2.5.1">
+    <link rel="stylesheet" href="styles.css?v=2.6.1k">
 </head>
 <body>
+    <!-- Loading Overlay (Phase 4.2) -->
+    <div id="loading-overlay" aria-live="polite" aria-busy="true" style="display: flex;">
+        <div class="loading-content">
+            <div class="loading-cat">🐱</div>
+            <div class="loading-overlay-spinner"></div>
+            <div class="loading-text">Loading Cat Collector...</div>
+            <div class="loading-subtext">Preparing your adventure</div>
+        </div>
+    </div>
+
     <div id="game-container">
         <header>
             <h1>🐱 Cat Collector 🐱</h1>
@@ -30,7 +40,10 @@
 
             <!-- Cat Collection Display -->
             <section id="collection-panel" aria-label="Your cat collection">
-                <h2>Your Cat Collection</h2>
+                <div class="panel-header">
+                    <h2>Your Cat Collection</h2>
+                    <button id="close-collection-btn" class="close-panel-btn" aria-label="Close collection panel">×</button>
+                </div>
                 <div id="cat-grid" role="grid" aria-label="Grid of cat cards"></div>
             </section>
 
@@ -193,7 +206,8 @@
     <script src="visuals.js?v=2.5.1"></script>
     <script src="analytics.js?v=2.5.1"></script>
     <script src="audio.js?v=2.5.1"></script>
+    <script src="animations.js?v=2.6.0"></script>
     <script src="minigames.js?v=2.5.1"></script>
-    <script src="game.js?v=2.5.1"></script>
+    <script src="game.js?v=2.6.1k"></script>
 </body>
 </html>

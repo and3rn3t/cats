@@ -2,72 +2,113 @@
 
 Welcome to the Cat Collector documentation! This index will help you find the information you need.
 
-## 📚 Available Documentation
+## � Documentation Structure
 
-### For Players
+The documentation is now organized into themed folders for easier navigation:
 
-- **[README.md](README.md)** - Main project overview
-  - Game features and mechanics
-  - How to play guide
-  - Cat breeds overview
-  - Technical details
-  - Future enhancements
+### 📘 [guides/](guides/) - User & Developer Guides
 
-- **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes!
-  - Installation instructions
-  - Basic gameplay tutorial
-  - Tips and strategies
-  - Troubleshooting guide
-  - Mobile play instructions
+Essential guides for players and developers.
 
-### For Developers
+- **[QUICKSTART.md](guides/QUICKSTART.md)** - Get started in 5 minutes!
+- **[DEVELOPER_GUIDE.md](guides/DEVELOPER_GUIDE.md)** - Technical deep dive for developers
+- **[API.md](guides/API.md)** - Complete API reference
 
-- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Technical deep dive
-  - Architecture overview
-  - Core game systems
-  - Key functions explained
-  - Styling system
-  - Adding new features
-  - Common issues and solutions
+### 📚 [reference/](reference/) - Technical Reference
 
-- **[API.md](API.md)** - Complete API reference
-  - Game state management
-  - Cat data structure
-  - Function documentation
-  - Constants and configuration
-  - LocalStorage schema
-  - Performance considerations
+Quick references, design systems, and optimization guides.
 
-### For Contributors
+- **[QUICK_REFERENCE.md](reference/QUICK_REFERENCE.md)** - General quick reference
+- **[ANIMATION_QUICK_REFERENCE.md](reference/ANIMATION_QUICK_REFERENCE.md)** - Animation system reference
+- **[LOADING_QUICK_REFERENCE.md](reference/LOADING_QUICK_REFERENCE.md)** - Loading states reference
+- **[STRATEGY_QUICK_REFERENCE.md](reference/STRATEGY_QUICK_REFERENCE.md)** - Game strategy reference
+- **[CSS_DESIGN_SYSTEM.md](reference/CSS_DESIGN_SYSTEM.md)** - CSS architecture and patterns
+- **[CSS_DESIGN_SYSTEM_SUMMARY.md](reference/CSS_DESIGN_SYSTEM_SUMMARY.md)** - CSS quick summary
+- **[OPTIMIZATION.md](reference/OPTIMIZATION.md)** - Performance optimization guide
+- **[TESTING_GUIDE_V2.5.0.md](reference/TESTING_GUIDE_V2.5.0.md)** - Testing procedures
+- **[TESTING_RESULTS_V2.5.0.md](reference/TESTING_RESULTS_V2.5.0.md)** - Test results
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute
-  - Contribution guidelines
-  - Adding new cat breeds
-  - Code style guide
-  - Pull request process
-  - Testing requirements
-  - Recognition and credits
+### 🚀 [releases/](releases/) - Release Documentation
 
-### Legal
+Version-specific features and release notes.
 
-- **[LICENSE](LICENSE)** - MIT License
-  - Open source license terms
-  - Usage permissions
-  - Warranty disclaimer
+- **[CHALLENGE_MODE_V2.1.0.md](releases/CHALLENGE_MODE_V2.1.0.md)** - Challenge mode introduction
+- **[V2.1.0_IMPLEMENTATION_SUMMARY.md](releases/V2.1.0_IMPLEMENTATION_SUMMARY.md)** - v2.1.0 details
+- **[README_V2.5.0.md](releases/README_V2.5.0.md)** - v2.5.0 release notes
+- **[RELEASE_SUMMARY_V2.5.1.md](releases/RELEASE_SUMMARY_V2.5.1.md)** - v2.5.1 summary
+- **[SESSION_SUMMARY_V2.5.0.md](releases/SESSION_SUMMARY_V2.5.0.md)** - v2.5.0 session notes
 
-## 🎯 Quick Navigation
+### 🔧 [development/](development/) - Development Process
 
-### I want to
+Phase documentation, progress tracking, and implementation details.
 
-- **Play the game** → Start with [QUICKSTART.md](QUICKSTART.md)
-- **Learn about features** → Read [README.md](README.md)
-- **Modify the code** → Check [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
-- **Add a cat breed** → See [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Understand the API** → Review [API.md](API.md)
+- **Phase 1-4 Documentation** - Complete phase histories
+- **Implementation Plans** - Detailed implementation guides
+- **Progress Tracking** - Development progress documents
+- **Step-by-Step Guides** - Completion guides for major features
+
+### 🐛 [bugfixes/](bugfixes/) - Bug Fix Documentation
+
+Detailed documentation of fixes and patches.
+
+- **[BUGFIX_CAT_BREEDS.md](bugfixes/BUGFIX_CAT_BREEDS.md)** - Cat breeds issues
+- **[BUGFIX_LAYOUT_OVERLAP.md](bugfixes/BUGFIX_LAYOUT_OVERLAP.md)** - Layout fixes
+- **[BUGFIX_LOADING_OVERLAY.md](bugfixes/BUGFIX_LOADING_OVERLAY.md)** - Loading overlay fixes
+- **[CRITICAL_FIX_V2.0.6.md](bugfixes/CRITICAL_FIX_V2.0.6.md)** - Critical bug fixes
+- **[LAYOUT_FIX.md](bugfixes/LAYOUT_FIX.md)** - Layout improvements
+- **[MODAL_PANEL_FIXES.md](bugfixes/MODAL_PANEL_FIXES.md)** - Modal/panel fixes
+- **[UI_POLISH_V2.0.5.md](bugfixes/UI_POLISH_V2.0.5.md)** - UI polish updates
+
+### 🚢 [deployment/](deployment/) - Deployment Guides
+
+Deployment procedures and hosting configuration.
+
+- **[DEPLOYMENT.md](deployment/DEPLOYMENT.md)** - Main deployment guide
+- **[WRANGLER_GUIDE.md](deployment/WRANGLER_GUIDE.md)** - Cloudflare Wrangler CLI guide
+- **Version-specific deployment docs** - Deployment notes for each release
+
+### 📋 Root Level Documents
+
+- **[ROADMAP.md](ROADMAP.md)** - Project roadmap and future plans
+- **[CHANGES.md](CHANGES.md)** - Changelog across all versions
+- **[NEW_FEATURES.md](NEW_FEATURES.md)** - New features overview
+- **[ONBOARDING_IMPROVEMENTS.md](ONBOARDING_IMPROVEMENTS.md)** - Onboarding enhancements
+- **[../README.md](../README.md)** - Main project README
+- **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - Contribution guidelines
+- **[../LICENSE](../LICENSE)** - MIT License
+
+## 🎯 Quick Navigation - I Want To
+
+### 🎮 As a Player
+
+- **Play the game** → [QUICKSTART.md](guides/QUICKSTART.md)
+- **Learn game mechanics** → [README.md](../README.md)
+- **Understand strategy** → [STRATEGY_QUICK_REFERENCE.md](reference/STRATEGY_QUICK_REFERENCE.md)
+- **See what's new** → [NEW_FEATURES.md](NEW_FEATURES.md) or [ROADMAP.md](ROADMAP.md)
+
+### 👨‍💻 As a Developer
+
+- **Understand the codebase** → [DEVELOPER_GUIDE.md](guides/DEVELOPER_GUIDE.md)
+- **Look up a function** → [API.md](guides/API.md)
+- **Add a feature** → [DEVELOPER_GUIDE.md](guides/DEVELOPER_GUIDE.md) + [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Optimize performance** → [OPTIMIZATION.md](reference/OPTIMIZATION.md)
+- **Deploy the game** → [DEPLOYMENT.md](deployment/DEPLOYMENT.md)
+- **Use Wrangler** → [WRANGLER_GUIDE.md](deployment/WRANGLER_GUIDE.md)
+
+### 🎨 As a Designer
+
+- **Understand CSS system** → [CSS_DESIGN_SYSTEM.md](reference/CSS_DESIGN_SYSTEM.md)
+- **Quick CSS reference** → [CSS_DESIGN_SYSTEM_SUMMARY.md](reference/CSS_DESIGN_SYSTEM_SUMMARY.md)
+- **Animation system** → [ANIMATION_QUICK_REFERENCE.md](reference/ANIMATION_QUICK_REFERENCE.md)
+
+### 🤝 As a Contributor
+
+- **Contribute code** → [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Add a cat breed** → [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Report a bug** → Open an issue on GitHub
-- **Suggest a feature** → Open an issue on GitHub
+- **Suggest a feature** → [ROADMAP.md](ROADMAP.md) + GitHub issue
 
-## 📂 Project Structure
+## � Project Overview
 
 ```text
 cats/
