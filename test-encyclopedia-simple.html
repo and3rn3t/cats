@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encyclopedia Simple Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { padding: 20px; }
+        .debug-info { 
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            background: white; 
+            border: 2px solid red; 
+            padding: 10px;
+            z-index: 10000;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Encyclopedia Simple Test</h1>
+    
+    <div class="debug-info" id="debug">
+        Debug info will appear here
+    </div>
+    
+    <button onclick="testOpen()" style="padding: 20px; font-size: 18px;">
+        📖 Open Encyclopedia
+    </button>
+    
+    <button onclick="checkPanel()" style="padding: 20px; font-size: 18px;">
+        🔍 Check Panel State
+    </button>
+    
+    <!-- Encyclopedia Panel -->
+    <aside id="encyclopedia-panel" class="side-panel hidden" aria-label="Cat Encyclopedia">
+        <div class="panel-header">
+            <h3>📖 Encyclopedia</h3>
+            <button class="close-panel-btn" onclick="closeEncyclopedia()" aria-label="Close encyclopedia panel">×</button>
+        </div>
+        <div id="encyclopedia-content" style="padding: 20px; background: white;">
+            Content will appear here
+        </div>
+    </aside>
+    
+    <!-- Load dependencies -->
+    <script src="catData.js"></script>
+    <script src="encyclopedia.js"></script>
+    
+    <script>
+        // Mock gameState
+        window.gameState = {
+            collectedCats: new Set([1, 2, 3, 5, 8, 13, 21])
+        };
+        
+        function log(msg) {
+            const debug = document.getElementById('debug');
+            debug.innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+        
+        function testOpen() {
+            log('=== Testing Open ===');
+            log('1. Checking if openEncyclopedia exists: ' + (typeof window.openEncyclopedia));
+            
+            const panel = document.getElementById('encyclopedia-panel');
+            log('2. Panel exists: ' + !!panel);
+            log('3. Panel classes before: ' + panel.className);
+            log('4. Panel display before: ' + window.getComputedStyle(panel).display);
+            log('5. Panel right before: ' + window.getComputedStyle(panel).right);
+            
+            if (window.openEncyclopedia) {
+                window.openEncyclopedia();
+                
+                setTimeout(() => {
+                    log('6. Panel classes after: ' + panel.className);
+                    log('7. Panel display after: ' + window.getComputedStyle(panel).display);
+                    log('8. Panel right after: ' + window.getComputedStyle(panel).right);
+                    
+                    const content = document.getElementById('encyclopedia-content');
+                    log('9. Content innerHTML length: ' + content.innerHTML.length);
+                }, 100);
+            } else {
+                log('ERROR: openEncyclopedia not found!');
+            }
+        }
+        
+        function checkPanel() {
+            const panel = document.getElementById('encyclopedia-panel');
+            log('=== Current State ===');
+            log('Classes: ' + panel.className);
+            log('Display: ' + window.getComputedStyle(panel).display);
+            log('Right: ' + window.getComputedStyle(panel).right);
+            log('Visibility: ' + window.getComputedStyle(panel).visibility);
+            log('Z-index: ' + window.getComputedStyle(panel).zIndex);
+        }
+        
+        // Auto-initialize
+        if (window.initEncyclopedia) {
+            initEncyclopedia();
+            log('Encyclopedia initialized');
+        }
+    </script>
+</body>
+</html>

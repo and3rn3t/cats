@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Encyclopedia Test</title>
+</head>
+<body>
+    <h1>Simple Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        console.log('=== Starting encyclopedia.js load test ===');
+        
+        // Create a script element
+        const script = document.createElement('script');
+        script.src = 'encyclopedia.js?v=' + Date.now(); // Force no cache
+        script.onerror = function() {
+            document.getElementById('results').innerHTML = '<p style="color:red;">❌ Failed to load encyclopedia.js</p>';
+            console.error('Script failed to load');
+        };
+        script.onload = function() {
+            console.log('✅ Script loaded');
+            
+            const results = [];
+            
+            // Test 1: CAT_FACTS
+            if (typeof CAT_FACTS !== 'undefined') {
+                results.push('✅ CAT_FACTS exists');
+                console.log('CAT_FACTS:', CAT_FACTS);
+            } else {
+                results.push('❌ CAT_FACTS not found');
+            }
+            
+            // Test 2: Functions on window
+            const functions = [
+                'initEncyclopedia',
+                'openEncyclopedia',
+                'closeEncyclopedia',
+                'renderEncyclopediaIndex',
+                'showBreedGuide'
+            ];
+            
+            functions.forEach(fname => {
+                if (typeof window[fname] === 'function') {
+                    results.push(`✅ window.${fname} exists`);
+                } else {
+                    results.push(`❌ window.${fname} NOT FOUND`);
+                    // Check if it exists without window
+                    try {
+                        if (typeof eval(fname) === 'function') {
+                            results.push(`   ℹ️ ${fname} exists in scope but not on window`);
+                        }
+                    } catch(e) {
+                        results.push(`   ℹ️ ${fname} doesn't exist anywhere`);
+                    }
+                }
+            });
+            
+            // Display results
+            document.getElementById('results').innerHTML = results.map(r => `<p>${r}</p>`).join('');
+            
+            // Try to access the functions directly
+            console.log('window.initEncyclopedia:', window.initEncyclopedia);
+            console.log('Type:', typeof window.initEncyclopedia);
+            
+            // List all window properties that contain 'encyclo'
+            const windowProps = Object.keys(window).filter(k => k.toLowerCase().includes('encyclo'));
+            console.log('Window properties with "encyclo":', windowProps);
+        };
+        
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

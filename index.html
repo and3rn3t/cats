@@ -3,34 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
+    <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.9.0">
 </head>
 <body>
+    <!-- Loading Overlay (Phase 4.2) -->
+    <div id="loading-overlay" aria-live="polite" aria-busy="true" style="display: flex;">
+        <div class="loading-content">
+            <div class="loading-cat">🐱</div>
+            <div class="loading-overlay-spinner"></div>
+            <div class="loading-text">Loading Cat Collector...</div>
+            <div class="loading-subtext">Preparing your adventure</div>
+        </div>
+    </div>
+
     <div id="game-container">
         <header>
             <h1>🐱 Cat Collector 🐱</h1>
             <p class="tagline">Discover and care for wild cats around the world!</p>
         </header>
 
-        <div id="main-game">
+        <main id="main-game">
             <!-- Game Canvas -->
             <div id="game-screen">
-                <canvas id="game-canvas" width="800" height="500"></canvas>
-                <div id="game-info">
+                <canvas id="game-canvas" width="800" height="500" aria-label="Game scene showing the wild cat sanctuary"></canvas>
+                <aside id="game-info" aria-label="Player statistics">
                     <div id="player-stats">
                         <h3>Your Collection</h3>
-                        <p>Cats Found: <span id="cats-collected">0</span> / <span id="total-cats">25</span></p>
-                        <p>Energy: <span id="player-energy">100</span></p>
+                        <p>Cats Found: <span id="cats-collected" aria-live="polite">0</span> / <span id="total-cats">25</span></p>
+                        <p>Energy: <span id="player-energy" aria-live="polite">100</span></p>
                     </div>
-                </div>
+                </aside>
             </div>
 
             <!-- Cat Collection Display -->
-            <div id="collection-panel">
-                <h2>Your Cat Collection</h2>
-                <div id="cat-grid"></div>
-            </div>
+            <section id="collection-panel" aria-label="Your cat collection">
+                <div class="panel-header">
+                    <h2>Your Cat Collection</h2>
+                    <button id="close-collection-btn" class="close-panel-btn" aria-label="Close collection panel">×</button>
+                </div>
+                <div id="cat-grid" role="grid" aria-label="Grid of cat cards"></div>
+            </section>
 
             <!-- Cat Details Panel -->
             <div id="cat-details" class="hidden">
@@ -43,18 +58,59 @@
                 <div id="cat-happiness"></div>
                 <button id="care-btn" class="action-btn">Care for this Cat 💕</button>
             </div>
+            <!-- Environment Selector -->
+            <section id="environment-selector" aria-label="Environment Selection">
+                <h3>🗺️ Choose Your Environment</h3>
+                <!-- Environment cards will be populated by JavaScript -->
+            </section>
 
-            <!-- Wild Cat Encounter -->
-            <div id="encounter-panel" class="hidden">
-                <h2>A Wild Cat Appears!</h2>
-                <div id="encounter-cat"></div>
-                <p id="encounter-text"></p>
-                <div id="encounter-actions">
-                    <button id="approach-btn" class="action-btn">Approach Gently</button>
-                    <button id="offer-treat-btn" class="action-btn">Offer Treat</button>
-                    <button id="observe-btn" class="action-btn">Observe</button>
+            <!-- Controls -->
+            <nav id="controls" aria-label="Main game controls">
+                <button id="explore-btn" class="main-btn" aria-label="Explore the wilderness to find cats">🔍 Explore for Cats</button>
+                <button id="collection-btn" class="main-btn" aria-label="View your cat collection">📚 View Collection</button>
+                <button id="challenges-btn" class="main-btn" aria-label="View daily challenges">🎯 Daily Challenges</button>
+                <button id="encyclopedia-btn" class="main-btn" aria-label="View cat encyclopedia">📖 Encyclopedia</button>
+                <button id="achievements-btn" class="main-btn" aria-label="View achievements">🏆 Achievements</button>
+                <button id="analytics-btn" class="main-btn" aria-label="View analytics dashboard">📊 Analytics</button>
+                <button id="help-btn" class="main-btn" aria-label="Show help information">❓ Help</button>
+            </nav>
+            
+            <!-- Daily Challenges Panel -->
+            <aside id="challenges-panel" class="side-panel hidden" aria-label="Daily Challenges">
+                <div class="panel-header">
+                    <h3>🎯 Daily Challenges</h3>
+                    <button class="close-panel-btn" onclick="closeChallenges()" aria-label="Close challenges panel">×</button>
                 </div>
-            </div>
+                <div id="challenges-content"></div>
+            </aside>
+            
+            <!-- Encyclopedia Panel -->
+            <aside id="encyclopedia-panel" class="side-panel hidden" aria-label="Cat Encyclopedia">
+                <div class="panel-header">
+                    <h3>📖 Encyclopedia</h3>
+                    <button class="close-panel-btn" onclick="closeEncyclopedia()" aria-label="Close encyclopedia panel">×</button>
+                </div>
+                <div id="encyclopedia-content"></div>
+            </aside>
+            
+            <!-- Achievements Panel -->
+            <aside id="achievements-panel" class="side-panel hidden" aria-label="Achievements">
+                <div class="panel-header">
+                    <h3>🏆 Achievements</h3>
+                    <button class="close-panel-btn" onclick="closeAchievements()" aria-label="Close achievements panel">×</button>
+                </div>
+                <div id="achievements-content"></div>
+            </aside>
+            
+            <!-- Analytics Panel -->
+            <aside id="analytics-panel" class="side-panel hidden" aria-label="Analytics Dashboard">
+                <div class="panel-header">
+                    <h3>📊 Analytics</h3>
+                    <button class="close-panel-btn" onclick="closeAnalytics()" aria-label="Close analytics panel">×</button>
+                </div>
+                <div id="analytics-content"></div>
+            </aside>
+        </main>
 
             <!-- Cat Care Activities Panel -->
             <div id="care-panel" class="hidden">
@@ -111,12 +167,34 @@
                 <button id="help-btn" class="main-btn">Help</button>
             </div>
         </div>
+        <!-- Cat Details Dialog -->
+        <dialog id="cat-details" aria-labelledby="detail-name">
+            <button id="close-details" class="close-btn" aria-label="Close cat details">×</button>
+            <div id="cat-portrait" aria-hidden="true"></div>
+            <h2 id="detail-name">Cat Details</h2>
+            <p id="detail-description"></p>
+            <div id="detail-stats" aria-label="Cat statistics"></div>
+            <div id="detail-origin"></div>
+        </dialog>
+
+        <!-- Wild Cat Encounter Dialog -->
+        <dialog id="encounter-panel" aria-labelledby="encounter-title">
+            <h2 id="encounter-title">A Wild Cat Appears!</h2>
+            <div id="encounter-cat" aria-hidden="true"></div>
+            <p id="encounter-text"></p>
+            <fieldset id="encounter-actions" aria-label="Choose how to approach the cat">
+                <legend class="visually-hidden">Choose your approach</legend>
+                <button id="approach-btn" class="action-btn" aria-label="Approach the cat gently">🤝 Approach Gently</button>
+                <button id="offer-treat-btn" class="action-btn" aria-label="Offer the cat a treat">🍖 Offer Treat</button>
+                <button id="observe-btn" class="action-btn" aria-label="Observe the cat from a distance">👀 Observe</button>
+            </fieldset>
+        </dialog>
 
         <!-- Help Modal -->
-        <div id="help-modal" class="modal hidden">
+        <dialog id="help-modal" aria-labelledby="help-title">
             <div class="modal-content">
-                <button class="close-btn" onclick="closeHelp()">×</button>
-                <h2>How to Play</h2>
+                <button class="close-btn" onclick="closeHelp()" aria-label="Close help modal">×</button>
+                <h2 id="help-title">How to Play</h2>
                 <div class="help-section">
                     <h3>🎯 Goal</h3>
                     <p>Discover and collect all 25 unique cat breeds from around the world!</p>
@@ -126,16 +204,42 @@
                     <p>Click "Explore for Cats" to venture into the wild and encounter cats. Each cat has unique stats and behaviors.</p>
                 </div>
                 <div class="help-section">
-                    <h3>📊 Cat Stats</h3>
-                    <p><strong>Cuteness:</strong> How adorable the cat is<br>
-                    <strong>Friendliness:</strong> How easily the cat trusts you<br>
-                    <strong>Energy:</strong> How active and playful the cat is<br>
-                    <strong>Intelligence:</strong> How clever and trainable the cat is<br>
-                    <strong>Rarity:</strong> How rare this breed is to find</p>
+                    <h3>🎮 Strategy is KEY!</h3>
+                    <p><strong>⚠️ You only get 2 attempts per cat!</strong> After 2 failures, the cat runs away.</p>
+                    <p><strong>Study the stats carefully:</strong></p>
+                    <ul class="help-list">
+                        <li><strong>High Friendliness (&gt;80):</strong> Use 👋 Approach</li>
+                        <li><strong>Low Energy (&lt;40):</strong> Use 🎁 Offer Treat</li>
+                        <li><strong>High Intelligence (&gt;75):</strong> Use 👀 Observe</li>
+                    </ul>
+                    <p><strong>Rarity matters:</strong> Legendary cats are MUCH harder to collect!</p>
                 </div>
                 <div class="help-section">
-                    <h3>💝 Caring for Cats</h3>
-                    <p>Choose the right action based on the cat's personality. High friendliness cats respond well to direct approach. Shy cats prefer observation first!</p>
+                    <h3>📊 Cat Stats</h3>
+                    <p><strong>Cuteness:</strong> How adorable the cat is<br>
+                    <strong>Friendliness:</strong> How easily the cat trusts you (affects Approach)<br>
+                    <strong>Energy:</strong> How active the cat is (affects Treat)<br>
+                    <strong>Intelligence:</strong> How clever the cat is (affects Observe)<br>
+                    <strong>Rarity:</strong> How rare and difficult to collect</p>
+                </div>
+                <div class="help-section">
+                    <h3>💝 Choose Wisely</h3>
+                    <p>Wrong choices have LOW success rates! Match your action to the cat's highest stat for the best chance of success.</p>
+                </div>
+                <div class="help-section">
+                    <h3>⚡ Energy System</h3>
+                    <p>Each exploration costs 10 energy. Your energy regenerates 1 point every 45 seconds, up to a maximum of 100. Use it wisely!</p>
+                </div>
+                <div class="help-section">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <p><kbd>Escape</kbd> - Close modals<br>
+                    <kbd>Enter</kbd> or <kbd>Space</kbd> - Select focused cat card<br>
+                    <kbd>Tab</kbd> - Navigate between elements</p>
+                </div>
+                <div class="help-section">
+                    <h3>🔄 Reset Game</h3>
+                    <p>Want to start fresh?</p>
+                    <button id="reset-btn" class="action-btn reset-btn" aria-label="Reset game and clear all progress">🔄 Reset Progress</button>
                 </div>
                 <div class="help-section">
                     <h3>🎮 Care Activities</h3>
@@ -146,10 +250,63 @@
                     <strong>🎯 Train:</strong> Mini-game! Click treats quickly!</p>
                 </div>
             </div>
-        </div>
+        </dialog>
+
+        <!-- Mini-Games Modal -->
+        <dialog id="minigame-modal" aria-labelledby="minigame-title">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeMinigameModal()" aria-label="Close mini-games">×</button>
+                <h2 id="minigame-title">🎮 Play with <span id="minigame-cat-icon">😺</span> <span id="minigame-cat-name">Cat</span></h2>
+                
+                <!-- Game Selection Screen -->
+                <div id="game-selection">
+                    <div class="game-selection-grid">
+                        <button class="game-select-btn" onclick="startMinigame('followTheTreat')" aria-label="Play Follow the Treat">
+                            <span class="game-icon">🍖</span>
+                            <h3>Follow the Treat</h3>
+                            <p>Memory game - repeat the sequence!</p>
+                            <p class="high-score">High Score: <span id="high-score-treat">0</span></p>
+                        </button>
+                        
+                        <button class="game-select-btn" onclick="startMinigame('catToyChase')" aria-label="Play Cat Toy Chase">
+                            <span class="game-icon">🎾</span>
+                            <h3>Cat Toy Chase</h3>
+                            <p>Timing game - catch the toy!</p>
+                            <p class="high-score">High Score: <span id="high-score-chase">0</span></p>
+                        </button>
+                        
+                        <button class="game-select-btn" onclick="startMinigame('hideAndSeek')" aria-label="Play Hide and Seek">
+                            <span class="game-icon">🙈</span>
+                            <h3>Hide and Seek</h3>
+                            <p>Find the hiding cat!</p>
+                            <p class="high-score">High Score: <span id="high-score-seek">0</span></p>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Game Play Screen -->
+                <div id="minigame-screen">
+                    <div id="minigame-area">
+                        <!-- Game content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </dialog>
     </div>
 
-    <script src="catData.js"></script>
-    <script src="game.js"></script>
+    <script src="catData.js?v=2.5.1"></script>
+    <script src="achievements.js?v=2.5.1"></script>
+    <script src="challenges.js?v=2.8.0"></script>
+    <script src="encyclopedia.js?v=2.8.0g"></script>
+    <script src="environments.js?v=2.5.1"></script>
+    <script src="visuals.js?v=2.5.1"></script>
+    <script src="analytics.js?v=2.5.1"></script>
+    <script src="audio.js?v=2.5.1"></script>
+    <script src="animations.js?v=2.6.0"></script>
+    <script src="minigames.js?v=2.5.1"></script>
+    <script src="tutorial.js?v=2.9.0"></script>
+    <script src="milestones.js?v=2.9.0"></script>
+    <script src="personalities.js?v=2.9.0"></script>
+    <script src="game.js?v=2.9.0"></script>
 </body>
 </html>

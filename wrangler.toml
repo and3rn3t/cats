@@ -1,0 +1,14 @@
+# Wrangler Configuration for Cat Collector
+# https://developers.cloudflare.com/pages/
+
+name = "cat-collector"
+compatibility_date = "2025-10-03"
+
+# Pages-specific configuration
+pages_build_output_dir = "."
+
+# Custom domain (configured in Cloudflare dashboard)
+# Production: https://cats.andernet.dev
+
+[env.production]
+name = "cat-collector"
