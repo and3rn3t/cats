@@ -47,6 +47,17 @@
                 <div id="cat-grid" role="grid" aria-label="Grid of cat cards"></div>
             </section>
 
+            <!-- Cat Details Panel -->
+            <div id="cat-details" class="hidden">
+                <button id="close-details" class="close-btn">×</button>
+                <div id="cat-portrait"></div>
+                <h2 id="detail-name"></h2>
+                <p id="detail-description"></p>
+                <div id="detail-stats"></div>
+                <div id="detail-origin"></div>
+                <div id="cat-happiness"></div>
+                <button id="care-btn" class="action-btn">Care for this Cat 💕</button>
+            </div>
             <!-- Environment Selector -->
             <section id="environment-selector" aria-label="Environment Selection">
                 <h3>🗺️ Choose Your Environment</h3>
@@ -101,6 +112,61 @@
             </aside>
         </main>
 
+            <!-- Cat Care Activities Panel -->
+            <div id="care-panel" class="hidden">
+                <button id="close-care" class="close-btn">×</button>
+                <h2>Care Activities</h2>
+                <div id="care-cat-info">
+                    <div id="care-cat-icon"></div>
+                    <h3 id="care-cat-name"></h3>
+                    <div id="care-happiness-bar"></div>
+                </div>
+                <div id="care-activities">
+                    <button class="care-activity-btn" id="feed-btn">
+                        <span class="activity-icon">🍽️</span>
+                        <span class="activity-name">Feed</span>
+                        <span class="activity-desc">Give your cat a tasty meal</span>
+                    </button>
+                    <button class="care-activity-btn" id="play-btn">
+                        <span class="activity-icon">🎾</span>
+                        <span class="activity-name">Play</span>
+                        <span class="activity-desc">Play with your energetic cat</span>
+                    </button>
+                    <button class="care-activity-btn" id="groom-btn">
+                        <span class="activity-icon">✨</span>
+                        <span class="activity-name">Groom</span>
+                        <span class="activity-desc">Brush and pamper your cat</span>
+                    </button>
+                    <button class="care-activity-btn" id="train-btn">
+                        <span class="activity-icon">🎯</span>
+                        <span class="activity-name">Train</span>
+                        <span class="activity-desc">Teach your cat a new trick</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Training Minigame Panel -->
+            <div id="training-game" class="hidden">
+                <button id="close-training" class="close-btn">×</button>
+                <h2>🎯 Training Challenge!</h2>
+                <p id="training-instructions">Click the treat when your cat looks at it!</p>
+                <div id="training-arena">
+                    <div id="training-cat">😺</div>
+                    <div id="training-treat" class="hidden">🐟</div>
+                </div>
+                <div id="training-score">
+                    <p>Score: <span id="score-value">0</span> / 5</p>
+                    <p>Time: <span id="time-value">10</span>s</p>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div id="controls">
+                <button id="explore-btn" class="main-btn">Explore for Cats</button>
+                <button id="collection-btn" class="main-btn">View Collection</button>
+                <button id="help-btn" class="main-btn">Help</button>
+            </div>
+        </div>
         <!-- Cat Details Dialog -->
         <dialog id="cat-details" aria-labelledby="detail-name">
             <button id="close-details" class="close-btn" aria-label="Close cat details">×</button>
@@ -174,6 +240,14 @@
                     <h3>🔄 Reset Game</h3>
                     <p>Want to start fresh?</p>
                     <button id="reset-btn" class="action-btn reset-btn" aria-label="Reset game and clear all progress">🔄 Reset Progress</button>
+                </div>
+                <div class="help-section">
+                    <h3>🎮 Care Activities</h3>
+                    <p>Once you've collected cats, you can care for them to increase their happiness!<br><br>
+                    <strong>🍽️ Feed:</strong> Great for lazy cats (low energy)<br>
+                    <strong>🎾 Play:</strong> Perfect for energetic cats<br>
+                    <strong>✨ Groom:</strong> Best for beautiful cats (high cuteness)<br>
+                    <strong>🎯 Train:</strong> Mini-game! Click treats quickly!</p>
                 </div>
             </div>
         </dialog>

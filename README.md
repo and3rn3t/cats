@@ -52,6 +52,8 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 - **🆕 Visual Effects** - Particle system and enhanced graphics
 - **🆕 Analytics Dashboard** - Track your collection progress and stats
 - **Collection & Care** - Find cats, care for them, and build your collection
+- **Interactive Care Activities** - Feed, play, groom, and train your collected cats to increase their happiness!
+- **Training Minigame** - Test your reflexes in a fun cat training challenge
 - **Educational** - Learn about real cat breeds, their origins, and behaviors
 - **Browser-Based** - No downloads required! Play directly in your web browser
 - **Auto-Save** - Your progress is automatically saved using local storage
@@ -177,9 +179,9 @@ Kids learn about:
 
 Potential additions:
 - More cat breeds (target: 50+)
-- Mini-games for interacting with collected cats
+- ✅ ~~Mini-games for interacting with collected cats~~ (Added training minigame!)
 - Trading system (multiplayer)
-- Cat care activities
+- ✅ ~~Cat care activities~~ (Feed, play, groom activities implemented!)
 - Achievement system
 - Sound effects and music
 - Different environments to explore
