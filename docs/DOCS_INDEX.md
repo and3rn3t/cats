@@ -69,12 +69,14 @@ Deployment procedures and hosting configuration.
 
 ### 📋 Root Level Documents
 
+- **[FEATURES_V2.9.0.md](FEATURES_V2.9.0.md)** - Complete feature overview (v2.9.0)
 - **[ROADMAP.md](ROADMAP.md)** - Project roadmap and future plans
 - **[CHANGES.md](CHANGES.md)** - Changelog across all versions
 - **[NEW_FEATURES.md](NEW_FEATURES.md)** - New features overview
 - **[ONBOARDING_IMPROVEMENTS.md](ONBOARDING_IMPROVEMENTS.md)** - Onboarding enhancements
 - **[../README.md](../README.md)** - Main project README
 - **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - Contribution guidelines
+- **[../CHANGELOG.md](../CHANGELOG.md)** - Complete version history
 - **[../LICENSE](../LICENSE)** - MIT License
 
 ## 🎯 Quick Navigation - I Want To

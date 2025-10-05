@@ -24,6 +24,13 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
   - [📚 Documentation](#-documentation)
   - [📋 Table of Contents](#-table-of-contents)
   - [🎮 Game Features](#-game-features)
+    - [Core Gameplay](#core-gameplay)
+    - [🆕 New Player Experience (v2.9.0)](#-new-player-experience-v290)
+    - [🏆 Progression Systems](#-progression-systems)
+    - [🌍 Exploration \& Discovery](#-exploration--discovery)
+    - [🎮 Mini-Games \& Activities (v2.4.0)](#-mini-games--activities-v240)
+    - [📚 Educational Content (v2.8.0)](#-educational-content-v280)
+    - [🎨 Polish \& Effects](#-polish--effects)
   - [🚀 Quick Start](#-quick-start)
   - [🚀 How to Play](#-how-to-play)
     - [Getting Started](#getting-started)
@@ -42,19 +49,55 @@ A fun, graphical cat collection game designed for ages 10-12! Discover and care 
 
 ## 🎮 Game Features
 
-- **25+ Unique Cat Breeds** - From Persian to Savannah, discover cats from all over the world!
-- **🆕 Strategic Challenge Mode (v2.1.0)** - Make meaningful decisions! Wrong choices = real consequences
+### Core Gameplay
+
+- **40 Unique Cat Breeds** - From Persian to Savannah, discover cats from all over the world!
+- **Strategic Challenge Mode** - Make meaningful decisions! Wrong choices = real consequences
 - **Beautiful Graphic Novel Style** - Comic-book inspired visuals that are colorful and engaging
 - **Stat-Based Gameplay** - Each cat has unique stats: Cuteness, Friendliness, Energy, Intelligence, and Rarity
-- **🆕 2-Attempt Limit** - Choose wisely - you only get 2 tries before cats run away!
+- **2-Attempt Limit** - Choose wisely - you only get 2 tries before cats run away!
 - **No Fighting** - Cats don't battle! Instead, their stats determine how you interact with them
-- **🆕 Achievement System** - 20 achievements to unlock across 5 rarity tiers
-- **🆕 Visual Effects** - Particle system and enhanced graphics
-- **🆕 Analytics Dashboard** - Track your collection progress and stats
-- **Collection & Care** - Find cats, care for them, and build your collection
-- **Interactive Care Activities** - Feed, play, groom, and train your collected cats to increase their happiness!
-- **Training Minigame** - Test your reflexes in a fun cat training challenge
-- **Educational** - Learn about real cat breeds, their origins, and behaviors
+
+### 🆕 New Player Experience (v2.9.0)
+
+- **� Interactive Tutorial** - 10-step guided introduction for first-time players
+- **📖 Contextual Tooltips** - Help text on every UI element (toggle on/off)
+- **Skip & Replay** - Control your learning experience
+
+### 🏆 Progression Systems
+
+- **36 Achievements** - Unlock achievements across 5 rarity tiers
+- **🆕 Rarity Milestones** - Complete full rarity collections for energy bonuses
+- **🆕 Cat Personalities (v2.9.0)** - 8 unique personality types add strategic depth
+- **� Daily Challenges (v2.7.0)** - Complete 3 daily challenges with streak tracking
+- **🔥 Streak System** - Track consecutive play days with fire icon
+
+### 🌍 Exploration & Discovery
+
+- **5 Unique Environments (v2.5.0)** - Forest, Mountain, Desert, City, Beach
+- **Environment-Specific Cats** - 8 cats per environment to discover
+- **Progressive Unlock System** - Unlock new environments as you play
+
+### 🎮 Mini-Games & Activities (v2.4.0)
+
+- **Follow the Treat** - Memory challenge game
+- **Cat Toy Chase** - Timing and reflex game
+- **Hide and Seek** - Observation game
+- **High Score Tracking** - Compete against your best scores
+
+### 📚 Educational Content (v2.8.0)
+
+- **Cat Encyclopedia** - Comprehensive breed information
+- **World Map** - Interactive geography with 17+ countries
+- **Fun Facts** - Educational cat trivia
+- **Knowledge Quiz** - Test your cat knowledge with 20 questions
+
+### 🎨 Polish & Effects
+
+- **Sound System** - Ambient sounds, cat meows, effects
+- **Visual Effects** - Particle system and smooth animations
+- **Analytics Dashboard** - Track your collection progress and stats
+- **Loading States** - Beautiful loading indicators and progress feedback
 - **Browser-Based** - No downloads required! Play directly in your web browser
 - **Auto-Save** - Your progress is automatically saved using local storage
 
@@ -151,6 +194,7 @@ The game includes 25 cat breeds from around the world:
 ### Browser Compatibility
 
 Works in all modern browsers:
+
 - Chrome/Edge (recommended)
 - Firefox
 - Safari
@@ -159,6 +203,7 @@ Works in all modern browsers:
 ## 🎨 Design Philosophy
 
 The game features a **graphic novel aesthetic** with:
+
 - Bold outlines and borders
 - Vibrant, contrasting colors
 - Comic Sans font for readability (perfect for kids!)
@@ -169,6 +214,7 @@ The game features a **graphic novel aesthetic** with:
 ## 🎯 Educational Value
 
 Kids learn about:
+
 - Different cat breeds and their origins
 - Geography (where cats come from)
 - Animal behavior and care
@@ -178,6 +224,7 @@ Kids learn about:
 ## 🔮 Future Enhancements
 
 Potential additions:
+
 - More cat breeds (target: 50+)
 - ✅ ~~Mini-games for interacting with collected cats~~ (Added training minigame!)
 - Trading system (multiplayer)

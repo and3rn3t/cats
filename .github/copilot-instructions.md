@@ -2,12 +2,14 @@
 
 ## Project Overview
 
-Cat Collector is an educational browser-based game for ages 10-12 where players discover and collect 25 unique cat breeds from around the world. The game features a comic book aesthetic, no violence, and teaches geography and animal facts.
+Cat Collector is an educational browser-based game for ages 10-12 where players discover and collect 40 unique cat breeds from around the world. The game features a comic book aesthetic, no violence, and teaches geography and animal facts.
+
+**Current Version**: 2.9.0 (Tutorial, Milestones & Personalities)
 
 ## Technology Stack
 
 - **Pure Vanilla JavaScript** - No frameworks or libraries (by design)
-- **HTML5 Canvas** - For game scene rendering
+- **HTML5 Canvas** - For game scene rendering  
 - **CSS3** - Comic book/graphic novel styling
 - **LocalStorage** - For save/load functionality
 - **No build process** - Static files served directly
@@ -91,18 +93,69 @@ transform: translate3d(x, y, 0);
 - Use `Set` for collected cats (efficient lookups)
 - Save to localStorage after each state change
 - Defensive loading with fallbacks
+- Milestone tracking for rarity completion
+- Daily challenge progress tracking
+- Tutorial state persistence
+- Personality system integration
+
+### Module Organization (v2.9.0+)
+- **Core Systems**: game.js (main logic), catData.js (data)
+- **Feature Modules**: achievements.js, challenges.js, environments.js, etc.
+- **UI Systems**: tutorial.js (onboarding), encyclopedia.js (education)
+- **Game Mechanics**: personalities.js (traits), milestones.js (rewards)
+- Each module is self-contained with init functions
+- Modules integrate via gameState and event callbacks
 
 ### Canvas Rendering
 - Cache gradients and reusable objects
 - Only redraw when necessary (not on animation frame)
 - Use efficient drawing operations
 - Static scene (no constant animation loop)
+- Environment-specific backgrounds cached
 
 ### Memory Management
 - Clear event listeners when re-rendering
 - Stop intervals when not needed
 - Clean up on page unload
 - No memory leaks from DOM references
+- Efficient Map/Set usage for tracking
+
+### Tutorial System (v2.9.0)
+- Step-based progression
+- Visual highlighting with backdrop
+- Contextual tooltips on all UI elements
+- Skip/replay functionality
+- State persists across sessions
+- Lazy-loaded on first play only
+
+### Milestone System (v2.9.0)
+- Automatic detection on cat collection
+- Progress tracking per rarity tier
+- Energy rewards (capped at 100)
+- Beautiful notification with confetti
+- Integrated into achievements panel
+
+### Personality System (v2.9.0)
+- 8 personality types with modifiers
+- Applied in success rate calculation
+- Filtering in collection view
+- Statistics tracking per personality
+- Achievement integration
+
+### Daily Challenge System (v2.7.0)
+- Date-seeded random generation
+- 3 challenges per day
+- 8 challenge types
+- Real-time progress tracking
+- Streak counter for consecutive days
+- Toast notifications on completion
+
+### Encyclopedia System (v2.8.0)
+- 4 main sections (Breeds, Map, Facts, Quiz)
+- Educational content integration
+- Interactive geography
+- Progress tracking
+- Sound integration
 
 ### Error Handling
 - Use optional chaining (`?.`) for all DOM access
@@ -218,14 +271,29 @@ cats/
 ├── index.html          # Main UI structure
 ├── styles.css          # All styling (single file)
 ├── game.js            # Core game logic
-├── catData.js         # Cat breed database
+├── catData.js         # Cat breed database (40 cats)
+├── achievements.js    # 36 achievements system
+├── analytics.js       # Analytics dashboard
+├── animations.js      # Visual effects & particles
+├── audio.js           # Sound system
+├── challenges.js      # Daily challenges & streaks
+├── encyclopedia.js    # Educational content system
+├── environments.js    # 5 environment system
+├── milestones.js      # Rarity milestone rewards (v2.9.0)
+├── minigames.js       # 3 mini-games
+├── personalities.js   # Cat personality traits (v2.9.0)
+├── tutorial.js        # Tutorial & tooltips (v2.9.0)
+├── visuals.js         # Canvas rendering
 ├── docs/              # Documentation
-│   ├── API.md
-│   ├── DEVELOPER_GUIDE.md
-│   ├── QUICKSTART.md
-│   └── OPTIMIZATION.md
+│   ├── guides/        # Player & developer guides
+│   ├── reference/     # Quick references
+│   ├── development/   # Phase completion docs
+│   ├── deployment/    # Deployment guides
+│   ├── bugfixes/      # Bug fix documentation
+│   └── releases/      # Release-specific notes
 ├── CONTRIBUTING.md    # Contribution guidelines
 ├── README.md          # Main documentation
+├── CHANGELOG.md       # Complete change history
 └── LICENSE            # MIT License
 ```
 
