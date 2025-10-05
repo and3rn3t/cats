@@ -1,11 +1,11 @@
 /**
  * Cat Encyclopedia System for Cat Collector
  * Educational content about cat breeds, geography, and fun facts
- * Version: 2.8.0
+ * Version: 2.8.0g
  */
 
 // Educational facts database
-const CAT_FACTS = {
+const ENCYCLOPEDIA_FACTS = {
     // General cat facts
     general: [
         "Cats spend 70% of their lives sleeping - that's about 13-16 hours a day!",
@@ -250,22 +250,7 @@ const encyclopediaState = {
 
 // ============================================================================
 // EXPOSE FUNCTIONS TO GLOBAL SCOPE
-// These assignments must happen BEFORE the functions are called by other scripts
-// Function declarations are hoisted, so this works even though functions are defined below
 // ============================================================================
-window.initEncyclopedia = function() { return initEncyclopedia(); };
-window.openEncyclopedia = function() { return openEncyclopedia(); };
-window.closeEncyclopedia = function() { return closeEncyclopedia(); };
-window.renderEncyclopediaIndex = function() { return renderEncyclopediaIndex(); };
-window.showBreedGuide = function() { return showBreedGuide(); };
-window.showBreedDetails = function(catId) { return showBreedDetails(catId); };
-window.showGeographyMap = function() { return showGeographyMap(); };
-window.showRegionInfo = function(region) { return showRegionInfo(region); };
-window.showFunFacts = function() { return showFunFacts(); };
-window.startQuiz = function() { return startQuiz(); };
-window.handleQuizAnswer = function(index) { return handleQuizAnswer(index); };
-
-console.log('📚 Encyclopedia functions exposed to window object');
 
 /**
  * Initialize encyclopedia system
@@ -522,7 +507,7 @@ function showBreedDetails(catId) {
     encyclopediaState.currentBreed = cat;
     
     // Get regional facts
-    const regionFacts = CAT_FACTS.regions[cat.origin] || {
+    const regionFacts = ENCYCLOPEDIA_FACTS.regions[cat.origin] || {
         fact: "An interesting cat breed with unique characteristics.",
         geography: "This cat comes from a fascinating region."
     };
@@ -649,7 +634,7 @@ function showGeographyMap() {
     for (const [region, cats] of Object.entries(regions)) {
         const collectedInRegion = cats.filter(cat => collected.has(cat.id)).length;
         const totalInRegion = cats.length;
-        const regionFacts = CAT_FACTS.regions[region];
+        const regionFacts = ENCYCLOPEDIA_FACTS.regions[region];
         
         html += `
             <div class="region-card" onclick="showRegionDetails('${region.replace(/'/g, "\\'")}')" tabindex="0" role="button">
@@ -685,7 +670,7 @@ function showRegionDetails(region) {
     
     const cats = window.CAT_BREEDS.filter(cat => cat.origin === region);
     const collected = window.gameState ? window.gameState.collectedCats : new Set();
-    const regionFacts = CAT_FACTS.regions[region];
+    const regionFacts = ENCYCLOPEDIA_FACTS.regions[region];
     
     if (!regionFacts) {
         alert(`Learn more about ${region} by collecting cats from this region!`);
@@ -722,7 +707,7 @@ function showFunFacts() {
             <div class="facts-grid">
     `;
     
-    CAT_FACTS.general.forEach((fact, index) => {
+    ENCYCLOPEDIA_FACTS.general.forEach((fact, index) => {
         html += `
             <div class="fact-card">
                 <span class="fact-number">${index + 1}</span>
@@ -929,3 +914,21 @@ function showQuizResults() {
         </div>
     `;
 }
+
+// ============================================================================
+// EXPOSE ALL FUNCTIONS TO GLOBAL SCOPE
+// This must be at the END of the file after all functions are defined
+// ============================================================================
+window.initEncyclopedia = initEncyclopedia;
+window.openEncyclopedia = openEncyclopedia;
+window.closeEncyclopedia = closeEncyclopedia;
+window.renderEncyclopediaIndex = renderEncyclopediaIndex;
+window.showBreedGuide = showBreedGuide;
+window.showBreedDetails = showBreedDetails;
+window.showGeographyMap = showGeographyMap;
+window.showRegionDetails = showRegionDetails;
+window.showFunFacts = showFunFacts;
+window.startQuiz = startQuiz;
+window.submitQuizAnswer = submitQuizAnswer;
+
+console.log('📚 Encyclopedia functions exposed to window object');

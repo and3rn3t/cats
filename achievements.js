@@ -436,6 +436,7 @@ function checkMinigameHighScore(state, gameName, threshold) {
 function checkAchievements(state) {
     const unlocked = [];
     
+    // Check standard achievements
     ACHIEVEMENTS.forEach(achievement => {
         try {
             if (achievement.requirement(state)) {
@@ -445,6 +446,20 @@ function checkAchievements(state) {
             console.error(`Error checking achievement ${achievement.id}:`, error);
         }
     });
+    
+    // Check personality achievements (v2.9.0)
+    if (window.getPersonalityAchievements) {
+        const personalityAchievements = getPersonalityAchievements();
+        personalityAchievements.forEach(achievement => {
+            try {
+                if (achievement.requirement(state)) {
+                    unlocked.push(achievement.id);
+                }
+            } catch (error) {
+                console.error(`Error checking personality achievement ${achievement.id}:`, error);
+            }
+        });
+    }
     
     return unlocked;
 }
@@ -527,18 +542,54 @@ function renderAchievementsPanel(state) {
     const content = document.getElementById('achievements-content');
     if (!content) return;
     
+    // Add milestones section at the top (v2.9.0)
+    if (window.addMilestonesToAchievements) {
+        addMilestonesToAchievements(state);
+    }
+    
+    // Add personality stats section (v2.9.0)
+    if (window.renderPersonalityStats) {
+        const personalitySection = document.createElement('div');
+        personalitySection.id = 'personality-stats-section';
+        personalitySection.innerHTML = renderPersonalityStats(state);
+        
+        // Check if section already exists
+        const existing = document.getElementById('personality-stats-section');
+        if (existing) {
+            existing.innerHTML = personalitySection.innerHTML;
+        } else {
+            content.insertBefore(personalitySection, content.firstChild);
+        }
+    }
+    
     const unlockedAchievements = state.unlockedAchievements || new Set();
-    const totalAchievements = ACHIEVEMENTS.length;
+    
+    // Merge personality achievements (v2.9.0)
+    let allAchievements = [...ACHIEVEMENTS];
+    if (window.getPersonalityAchievements) {
+        allAchievements = [...allAchievements, ...getPersonalityAchievements()];
+    }
+    
+    const totalAchievements = allAchievements.length;
     const unlockedCount = unlockedAchievements.size;
     
+    // Find or create achievements container
+    let achievementsContainer = document.getElementById('standard-achievements');
+    if (!achievementsContainer) {
+        achievementsContainer = document.createElement('div');
+        achievementsContainer.id = 'standard-achievements';
+        content.appendChild(achievementsContainer);
+    }
+    
     let html = `
+        <h3 style="margin-top: 2em;">🏆 Achievements</h3>
         <div class="achievements-header">
             <p class="achievement-progress">${unlockedCount} / ${totalAchievements} Unlocked</p>
         </div>
         <div class="achievements-grid">
     `;
     
-    ACHIEVEMENTS.forEach(achievement => {
+    allAchievements.forEach(achievement => {
         const isUnlocked = unlockedAchievements.has(achievement.id);
         const lockedClass = isUnlocked ? '' : 'locked';
         const icon = isUnlocked ? achievement.icon : '🔒';
@@ -554,7 +605,7 @@ function renderAchievementsPanel(state) {
     });
     
     html += '</div>';
-    content.innerHTML = html;
+    achievementsContainer.innerHTML = html;
 }
 
 // Expose functions globally

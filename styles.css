@@ -4012,3 +4012,618 @@ dialog#minigame-modal[open] {
     }
 }
 
+/* ============================================================================
+   TUTORIAL & ONBOARDING SYSTEM (v2.9.0)
+   ============================================================================ */
+
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.tutorial-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.tutorial-box {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+    border: 5px solid #333;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+}
+
+.tutorial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.tutorial-header h3 {
+    margin: 0;
+    font-size: var(--font-xl);
+    color: #333;
+}
+
+.tutorial-skip-btn {
+    background: #e0e0e0;
+    border: 2px solid #999;
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.tutorial-skip-btn:hover {
+    background: #d0d0d0;
+    transform: scale(1.05);
+}
+
+.tutorial-body {
+    margin-bottom: var(--space-xl);
+}
+
+.tutorial-body p {
+    font-size: var(--font-base);
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+}
+
+.tutorial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tutorial-progress {
+    font-size: var(--font-sm);
+    color: #666;
+    font-weight: bold;
+}
+
+.tutorial-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 3px solid #333;
+    border-radius: var(--radius-sm);
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-md);
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.tutorial-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tutorial-highlight {
+    position: relative;
+    box-shadow: 0 0 0 4px #ffd54f, 0 0 20px rgba(255, 213, 79, 0.6) !important;
+    animation: tutorialPulse 2s ease-in-out infinite;
+}
+
+@keyframes tutorialBounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes tutorialPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px #ffd54f, 0 0 20px rgba(255, 213, 79, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 8px #ffd54f, 0 0 30px rgba(255, 213, 79, 0.8);
+    }
+}
+
+/* Tooltips */
+.tooltip {
+    position: fixed;
+    background: #333;
+    color: white;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-sm);
+    max-width: 250px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip::before {
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+}
+
+.tooltip-top::before {
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: #333;
+}
+
+.tooltip-bottom::before {
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: #333;
+}
+
+.tooltip-left::before {
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: #333;
+}
+
+.tooltip-right::before {
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: #333;
+}
+
+.tooltip-icon {
+    display: inline-block;
+    margin-left: 5px;
+    opacity: 0.6;
+    font-size: 0.8em;
+    cursor: help;
+    transition: opacity 0.2s;
+}
+
+button:hover .tooltip-icon,
+.stat-item:hover .tooltip-icon {
+    opacity: 1;
+}
+
+/* ============================================================================
+   MILESTONE REWARDS SYSTEM (v2.9.0)
+   ============================================================================ */
+
+.milestones-panel {
+    padding: var(--space-xl);
+}
+
+.milestones-panel h3 {
+    font-size: var(--font-2xl);
+    margin-bottom: var(--space-md);
+    text-align: center;
+    color: #333;
+}
+
+.milestones-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: var(--space-xl);
+    font-size: var(--font-md);
+}
+
+.milestones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-xl);
+}
+
+.milestone-card {
+    background: white;
+    border: 4px solid #333;
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.milestone-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #b0bec5, #90a4ae);
+}
+
+.milestone-card.rarity-common::before {
+    background: linear-gradient(90deg, var(--color-rarity-common), #90a4ae);
+}
+
+.milestone-card.rarity-uncommon::before {
+    background: linear-gradient(90deg, var(--color-rarity-uncommon), #4caf50);
+}
+
+.milestone-card.rarity-rare::before {
+    background: linear-gradient(90deg, var(--color-rarity-rare), #1e88e5);
+}
+
+.milestone-card.rarity-epic::before {
+    background: linear-gradient(90deg, var(--color-rarity-epic), #8e24aa);
+}
+
+.milestone-card.rarity-legendary::before {
+    background: linear-gradient(90deg, var(--color-rarity-legendary), #ff8f00);
+}
+
+.milestone-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.milestone-card.milestone-completed {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-color: #4caf50;
+}
+
+.milestone-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.milestone-icon-large {
+    font-size: 3em;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.milestone-header h4 {
+    margin: 0;
+    font-size: var(--font-lg);
+    color: #333;
+}
+
+.milestone-desc {
+    color: #666;
+    margin-bottom: var(--space-lg);
+    font-size: var(--font-sm);
+}
+
+.milestone-progress {
+    margin-bottom: var(--space-md);
+}
+
+.milestone-progress .progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border: 2px solid #333;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+}
+
+.milestone-progress .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #66bb6a);
+    transition: width 0.5s ease-out;
+    position: relative;
+}
+
+.milestone-progress .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.milestone-progress .progress-text {
+    text-align: center;
+    margin-top: var(--space-xs);
+    font-size: var(--font-sm);
+    font-weight: bold;
+    color: #333;
+}
+
+.milestone-reward-display {
+    text-align: center;
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 2px solid #e0e0e0;
+}
+
+.milestone-claimed {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: var(--font-md);
+}
+
+.milestone-pending {
+    color: #ff9800;
+    font-weight: bold;
+    font-size: var(--font-sm);
+}
+
+.milestone-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+    border: 5px solid #333;
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    max-width: 400px;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: all 0.5s ease-out;
+    cursor: pointer;
+}
+
+.milestone-content {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+}
+
+.milestone-notification .milestone-icon {
+    font-size: 4em;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.milestone-text h3 {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: var(--font-xl);
+    color: #333;
+}
+
+.milestone-text h4 {
+    margin: 0 0 var(--space-sm) 0;
+    font-size: var(--font-lg);
+    color: #555;
+}
+
+.milestone-text p {
+    margin: var(--space-xs) 0;
+    font-size: var(--font-sm);
+    color: #666;
+}
+
+.milestone-reward {
+    font-weight: bold;
+    color: #ff6f00;
+    font-size: var(--font-md) !important;
+}
+
+/* ============================================================================
+   PERSONALITY TRAITS SYSTEM (v2.9.0)
+   ============================================================================ */
+
+.personality-trait {
+    background: white;
+    border: 3px solid #9575cd;
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.personality-icon {
+    font-size: 2.5em;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.personality-info strong {
+    display: block;
+    font-size: var(--font-lg);
+    color: #333;
+    margin-bottom: var(--space-xs);
+}
+
+.personality-info p {
+    margin: 0;
+    color: #666;
+    font-size: var(--font-sm);
+}
+
+.personality-filter {
+    margin: var(--space-xl) 0;
+    padding: var(--space-lg);
+    background: #f5f5f5;
+    border: 3px solid #333;
+    border-radius: var(--radius-md);
+}
+
+.personality-filter h4 {
+    margin: 0 0 var(--space-md) 0;
+    font-size: var(--font-lg);
+    color: #333;
+    text-align: center;
+}
+
+.personality-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    justify-content: center;
+}
+
+.filter-btn {
+    background: white;
+    border: 3px solid #333;
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-sm);
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-2px) scale(1.05);
+}
+
+.personality-stats-panel {
+    padding: var(--space-xl);
+}
+
+.personality-stats-panel h3 {
+    font-size: var(--font-2xl);
+    margin-bottom: var(--space-md);
+    text-align: center;
+    color: #333;
+}
+
+.panel-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: var(--space-xl);
+    font-size: var(--font-md);
+}
+
+.personality-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--space-lg);
+}
+
+.personality-stat-card {
+    background: white;
+    border: 3px solid #333;
+    border-left-width: 4px;
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    transition: var(--transition-base);
+}
+
+.personality-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.personality-stat-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.personality-icon-large {
+    font-size: 2em;
+}
+
+.personality-stat-header h4 {
+    margin: 0;
+    font-size: var(--font-md);
+    color: #333;
+}
+
+.personality-stat-progress {
+    margin-top: var(--space-md);
+}
+
+.personality-hint {
+    margin-top: var(--space-sm);
+    font-size: var(--font-xs);
+    color: #888;
+    font-style: italic;
+}
+
+/* Responsive adjustments for new features */
+@media (max-width: 768px) {
+    .tutorial-box {
+        padding: var(--space-lg);
+        max-width: 95%;
+    }
+    
+    .milestones-grid,
+    .personality-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .milestone-notification {
+        max-width: 90%;
+        padding: var(--space-md);
+    }
+    
+    .milestone-content {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Accessibility for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-box,
+    .tutorial-highlight {
+        animation: none !important;
+    }
+    
+    .tutorial-btn:hover,
+    .milestone-card:hover {
+        transform: none;
+    }
+    
+    .progress-bar-fill::after {
+        animation: none;
+    }
+}
+
+

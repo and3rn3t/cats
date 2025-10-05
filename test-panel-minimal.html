@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Visibility Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .side-panel {
+            position: fixed;
+            right: -450px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            max-height: 85vh;
+            background: white;
+            border: 5px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .side-panel:not(.hidden) {
+            right: 20px;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-bottom: 4px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-content {
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        
+        .debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #ffe;
+            border: 2px solid #cc0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 400px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Panel Visibility Test</h1>
+    
+    <div class="debug" id="debug"></div>
+    
+    <button onclick="togglePanel()">Toggle Panel</button>
+    <button onclick="checkState()">Check State</button>
+    
+    <aside id="test-panel" class="side-panel hidden">
+        <div class="panel-header">
+            <h3>📖 Test Panel</h3>
+            <button onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content" id="panel-content">
+            <h4>Welcome!</h4>
+            <p>This is test content to verify the panel displays correctly.</p>
+            <p>If you can read this, the panel is working!</p>
+        </div>
+    </aside>
+    
+    <script>
+        function log(msg) {
+            const debug = document.getElementById('debug');
+            debug.innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+        
+        function togglePanel() {
+            const panel = document.getElementById('test-panel');
+            log('=== Toggle Panel ===');
+            log('Before: ' + panel.className);
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                log('Removed hidden class');
+            } else {
+                panel.classList.add('hidden');
+                log('Added hidden class');
+            }
+            
+            log('After: ' + panel.className);
+            log('Display: ' + window.getComputedStyle(panel).display);
+            log('Right: ' + window.getComputedStyle(panel).right);
+        }
+        
+        function closePanel() {
+            const panel = document.getElementById('test-panel');
+            panel.classList.add('hidden');
+            log('Panel closed');
+        }
+        
+        function checkState() {
+            const panel = document.getElementById('test-panel');
+            log('=== Current State ===');
+            log('Classes: ' + panel.className);
+            log('Display: ' + window.getComputedStyle(panel).display);
+            log('Right: ' + window.getComputedStyle(panel).right);
+            log('Z-index: ' + window.getComputedStyle(panel).zIndex);
+        }
+        
+        log('Page loaded');
+    </script>
+</body>
+</html>

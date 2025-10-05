@@ -21,7 +21,9 @@ let gameState = {
         city: { discovered: new Set(), visits: 0 },
         beach: { discovered: new Set(), visits: 0 }
     },
-    environmentsUnlocked: ['forest']
+    environmentsUnlocked: ['forest'],
+    // Milestone system (v2.9.0)
+    completedMilestones: new Set()
 };
 
 // Canvas setup
@@ -132,6 +134,22 @@ function initGame() {
         initAnimations();
     }
     
+    // Initialize tutorial system (Phase v2.9.0)
+    if (window.initTutorial) {
+        updateLoadingText('Setting up tutorial...');
+        initTutorial();
+    }
+    
+    // Initialize milestone system (v2.9.0)
+    if (window.initMilestones) {
+        initMilestones(gameState);
+    }
+    
+    // Initialize personality system (v2.9.0)
+    if (window.initPersonalities) {
+        initPersonalities();
+    }
+    
     // Calculate minimum display time for loading overlay
     const initStartTime = Date.now();
     const MIN_LOADING_DISPLAY = 1500; // Minimum 1.5 seconds
@@ -189,7 +207,7 @@ function saveGameState() {
         }
         
         localStorage.setItem('catCollectorGame', JSON.stringify({
-            version: '2.7.0',
+            version: '2.9.0',
             collectedCats: Array.from(gameState.collectedCats),
             playerEnergy: gameState.playerEnergy,
             gameStartTime: gameState.gameStartTime,
@@ -206,7 +224,9 @@ function saveGameState() {
             environmentProgress: environmentProgressSerialized,
             environmentsUnlocked: gameState.environmentsUnlocked || ['forest'],
             // Daily challenges (Phase 5.1)
-            dailyChallenges: dailyChallengesSerialized
+            dailyChallenges: dailyChallengesSerialized,
+            // Milestones (v2.9.0)
+            completedMilestones: Array.from(gameState.completedMilestones || [])
         }));
     } catch (error) {
         console.error('Failed to save game state:', error);
@@ -272,6 +292,9 @@ function loadGameState() {
                     }
                 };
             }
+            
+            // Load completed milestones (v2.9.0)
+            gameState.completedMilestones = new Set(data.completedMilestones || []);
             
             console.log('✅ Game state loaded. Current environment:', gameState.currentEnvironment);
         }
@@ -818,6 +841,24 @@ function calculateEncounterSuccess(cat, action, attemptNumber) {
             break;
     }
     
+    // Apply personality modifier (v2.9.0)
+    if (window.applyPersonalityModifier) {
+        const baseRate = successChance * 100;
+        const modifiedRate = applyPersonalityModifier(baseRate, cat.id, action);
+        successChance = modifiedRate / 100;
+        
+        // Get personality for hint in message
+        if (window.getCatPersonality) {
+            const personality = getCatPersonality(cat.id);
+            const modifier = personality.modifiers[action];
+            if (modifier > 10) {
+                message += ` (${personality.name} personality helps!)`;
+            } else if (modifier < -10) {
+                message += ` (${personality.name} cat is harder to ${action}!)`;
+            }
+        }
+    }
+    
     // Rarity affects difficulty - Legendary cats are much harder!
     const rarityPenalty = {
         'common': 1.0,
@@ -926,6 +967,16 @@ function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strate
     // Update achievements
     if (window.updateAchievements) {
         updateAchievements(gameState);
+    }
+    
+    // Check milestones (v2.9.0)
+    if (window.checkMilestones) {
+        const newMilestones = checkMilestones(gameState);
+        newMilestones.forEach(milestone => {
+            if (window.showMilestoneNotification) {
+                setTimeout(() => showMilestoneNotification(milestone), 1500);
+            }
+        });
     }
     
     // Update challenge progress (Phase 5.1)
@@ -1177,6 +1228,12 @@ function showCatDetails(catId) {
     name.textContent = cat.name;
     description.textContent = cat.description;
     origin.innerHTML = `<strong>Origin:</strong> ${cat.origin}<br><strong>Behavior:</strong> ${cat.behavior}<br><strong>Favorite Activity:</strong> ${cat.favoriteActivity}`;
+    
+    // Add personality trait display (v2.9.0)
+    if (window.getPersonalityDisplay) {
+        const personalityHTML = getPersonalityDisplay(cat.id);
+        origin.innerHTML += personalityHTML;
+    }
     
     // Use animated stat bars if available
     if (window.animateStatBars) {
