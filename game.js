@@ -4,6 +4,8 @@ let gameState = {
     playerEnergy: 100,
     currentEncounter: null,
     lastEncounterTime: 0,
+    catHappiness: {}, // Track happiness for each cat (0-100)
+    lastCareTime: {} // Track when each cat was last cared for
     gameStartTime: Date.now(),
     explorationCount: 0,
     firstTrySuccesses: 0,
@@ -178,6 +180,12 @@ function initGame() {
  * Persists collected cats and energy level
  */
 function saveGameState() {
+    localStorage.setItem('catCollectorGame', JSON.stringify({
+        collectedCats: Array.from(gameState.collectedCats),
+        playerEnergy: gameState.playerEnergy,
+        catHappiness: gameState.catHappiness,
+        lastCareTime: gameState.lastCareTime
+    }));
     try {
         // Update play time before saving
         if (window.updatePlayTime) {
@@ -239,6 +247,20 @@ function saveGameState() {
  * Restores previously saved progress if available
  */
 function loadGameState() {
+    const saved = localStorage.getItem('catCollectorGame');
+    if (saved) {
+        const data = JSON.parse(saved);
+        gameState.collectedCats = new Set(data.collectedCats);
+        gameState.playerEnergy = data.playerEnergy;
+        gameState.catHappiness = data.catHappiness || {};
+        gameState.lastCareTime = data.lastCareTime || {};
+        
+        // Initialize happiness for collected cats if not set
+        gameState.collectedCats.forEach(catId => {
+            if (gameState.catHappiness[catId] === undefined) {
+                gameState.catHappiness[catId] = 70; // Start at 70%
+            }
+        });
     try {
         const saved = localStorage.getItem('catCollectorGame');
         if (saved) {
@@ -380,6 +402,18 @@ function setupEventListeners() {
         handleEncounterAction('observe');
     });
     
+    document.getElementById('approach-btn').addEventListener('click', () => handleEncounterAction('approach'));
+    document.getElementById('offer-treat-btn').addEventListener('click', () => handleEncounterAction('treat'));
+    document.getElementById('observe-btn').addEventListener('click', () => handleEncounterAction('observe'));
+    
+    // Care activities
+    document.getElementById('care-btn').addEventListener('click', showCarePanel);
+    document.getElementById('close-care').addEventListener('click', closeCarePanel);
+    document.getElementById('feed-btn').addEventListener('click', () => handleCareActivity('feed'));
+    document.getElementById('play-btn').addEventListener('click', () => handleCareActivity('play'));
+    document.getElementById('groom-btn').addEventListener('click', () => handleCareActivity('groom'));
+    document.getElementById('train-btn').addEventListener('click', startTrainingGame);
+    document.getElementById('close-training').addEventListener('click', closeTrainingGame);
     // Dialog backdrop click to close (for help modal)
     const helpModal = document.getElementById('help-modal');
     if (helpModal) {
@@ -841,6 +875,21 @@ function calculateEncounterSuccess(cat, action, attemptNumber) {
             break;
     }
     
+    success = Math.random() < successChance;
+    
+    if (success) {
+        // Add to collection
+        gameState.collectedCats.add(cat.id);
+        // Initialize happiness for new cat
+        gameState.catHappiness[cat.id] = 70;
+        saveGameState();
+        
+        alert(`✨ Success! ✨\n\n${message}\n\n${cat.name} joins your collection!`);
+        
+        // Close encounter and update display
+        document.getElementById('encounter-panel').classList.add('hidden');
+        renderCollection();
+        updatePlayerStats();
     // Apply personality modifier (v2.9.0)
     if (window.applyPersonalityModifier) {
         const baseRate = successChance * 100;
@@ -1275,6 +1324,18 @@ function showCatDetails(catId) {
     
     modal.showModal();
     
+    // Show happiness level
+    const happiness = gameState.catHappiness[catId] || 70;
+    const happinessDiv = document.getElementById('cat-happiness');
+    let happinessEmoji = '😺';
+    if (happiness >= 80) happinessEmoji = '😻';
+    else if (happiness < 50) happinessEmoji = '😿';
+    happinessDiv.innerHTML = `${happinessEmoji} Happiness: ${Math.round(happiness)}%`;
+    
+    // Store current cat ID for care activities
+    modal.dataset.catId = catId;
+    
+    modal.classList.remove('hidden');
     // Add entrance animation (Phase 4.1)
     if (window.animateDialogOpen) {
         animateDialogOpen(modal);
@@ -1402,6 +1463,278 @@ function closeHelp() {
     }
 }
 
+// Cat Care Activities
+let currentCareCatId = null;
+
+function showCarePanel() {
+    const detailsModal = document.getElementById('cat-details');
+    const catId = parseInt(detailsModal.dataset.catId);
+    
+    if (!catId) return;
+    
+    currentCareCatId = catId;
+    const cat = CAT_BREEDS.find(c => c.id === catId);
+    
+    if (!cat) return;
+    
+    // Populate care panel
+    document.getElementById('care-cat-icon').textContent = cat.icon;
+    document.getElementById('care-cat-name').textContent = cat.name;
+    
+    // Show happiness bar
+    const happiness = gameState.catHappiness[catId] || 70;
+    const happinessBarDiv = document.getElementById('care-happiness-bar');
+    happinessBarDiv.innerHTML = `
+        <label>Happiness</label>
+        <div class="happiness-bar-bg">
+            <div class="happiness-bar-fill" style="width: ${happiness}%"></div>
+        </div>
+    `;
+    
+    // Hide details modal and show care panel
+    detailsModal.classList.add('hidden');
+    document.getElementById('care-panel').classList.remove('hidden');
+}
+
+function closeCarePanel() {
+    document.getElementById('care-panel').classList.add('hidden');
+    // Show details modal again if we have a cat ID
+    if (currentCareCatId) {
+        showCatDetails(currentCareCatId);
+    }
+}
+
+function handleCareActivity(activity) {
+    if (!currentCareCatId) return;
+    
+    const cat = CAT_BREEDS.find(c => c.id === currentCareCatId);
+    if (!cat) return;
+    
+    let happiness = gameState.catHappiness[currentCareCatId] || 70;
+    let message = '';
+    let happinessGain = 0;
+    
+    switch (activity) {
+        case 'feed':
+            // More effective for cats with lower energy stat
+            happinessGain = 5 + Math.floor((100 - cat.stats.energy) / 10);
+            message = `${cat.name} enjoyed the meal! 🍽️`;
+            if (cat.stats.energy < 50) {
+                message += '\nLazy cats love being fed!';
+            }
+            break;
+            
+        case 'play':
+            // More effective for high energy cats
+            happinessGain = 5 + Math.floor(cat.stats.energy / 10);
+            message = `${cat.name} had a great time playing! 🎾`;
+            if (cat.stats.energy > 80) {
+                message += '\nEnergetic cats love to play!';
+            }
+            break;
+            
+        case 'groom':
+            // More effective for high cuteness cats
+            happinessGain = 5 + Math.floor(cat.stats.cuteness / 10);
+            message = `${cat.name} looks beautiful and feels pampered! ✨`;
+            if (cat.stats.cuteness > 90) {
+                message += '\nBeautiful cats love grooming!';
+            }
+            break;
+    }
+    
+    // Apply happiness gain
+    happiness = Math.min(100, happiness + happinessGain);
+    gameState.catHappiness[currentCareCatId] = happiness;
+    gameState.lastCareTime[currentCareCatId] = Date.now();
+    saveGameState();
+    
+    // Show result
+    alert(`💕 ${message}\n\nHappiness +${happinessGain}%!`);
+    
+    // Update happiness display
+    const happinessBarFill = document.querySelector('#care-happiness-bar .happiness-bar-fill');
+    if (happinessBarFill) {
+        happinessBarFill.style.width = `${happiness}%`;
+    }
+}
+
+// Training Minigame
+let trainingGameState = {
+    score: 0,
+    timeLeft: 10,
+    isPlaying: false,
+    timer: null,
+    treatTimeout: null
+};
+
+function startTrainingGame() {
+    if (!currentCareCatId) return;
+    
+    const cat = CAT_BREEDS.find(c => c.id === currentCareCatId);
+    if (!cat) return;
+    
+    // Hide care panel
+    document.getElementById('care-panel').classList.add('hidden');
+    
+    // Reset game state
+    trainingGameState.score = 0;
+    trainingGameState.timeLeft = 10;
+    trainingGameState.isPlaying = true;
+    
+    // Show training panel
+    document.getElementById('training-game').classList.remove('hidden');
+    
+    // Update displays
+    document.getElementById('score-value').textContent = '0';
+    document.getElementById('time-value').textContent = '10';
+    
+    // Position cat
+    const trainingCat = document.getElementById('training-cat');
+    trainingCat.textContent = cat.icon;
+    trainingCat.style.left = '50%';
+    trainingCat.style.top = '50%';
+    trainingCat.style.transform = 'translate(-50%, -50%)';
+    
+    // Start timer
+    trainingGameState.timer = setInterval(() => {
+        trainingGameState.timeLeft--;
+        document.getElementById('time-value').textContent = trainingGameState.timeLeft;
+        
+        if (trainingGameState.timeLeft <= 0) {
+            endTrainingGame();
+        }
+    }, 1000);
+    
+    // Show first treat
+    setTimeout(() => showTrainingTreat(), 500);
+}
+
+function showTrainingTreat() {
+    if (!trainingGameState.isPlaying) return;
+    
+    const arena = document.getElementById('training-arena');
+    const treat = document.getElementById('training-treat');
+    const trainingCat = document.getElementById('training-cat');
+    
+    // Random position for treat
+    const x = Math.random() * (arena.offsetWidth - 80) + 40;
+    const y = Math.random() * (arena.offsetHeight - 80) + 40;
+    
+    treat.style.left = x + 'px';
+    treat.style.top = y + 'px';
+    treat.classList.remove('hidden');
+    
+    // Make cat look at treat
+    const catX = parseFloat(trainingCat.style.left) || arena.offsetWidth / 2;
+    if (x < catX) {
+        trainingCat.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+    } else {
+        trainingCat.style.transform = 'translate(-50%, -50%) scaleX(1)';
+    }
+    
+    // Add click handler
+    treat.onclick = catchTreat;
+    
+    // Hide treat after 2 seconds if not clicked
+    trainingGameState.treatTimeout = setTimeout(() => {
+        treat.classList.add('hidden');
+        if (trainingGameState.isPlaying && trainingGameState.timeLeft > 0) {
+            setTimeout(() => showTrainingTreat(), 500);
+        }
+    }, 2000);
+}
+
+function catchTreat() {
+    if (!trainingGameState.isPlaying) return;
+    
+    // Clear timeout
+    clearTimeout(trainingGameState.treatTimeout);
+    
+    // Hide treat
+    const treat = document.getElementById('training-treat');
+    treat.classList.add('hidden');
+    
+    // Increase score
+    trainingGameState.score++;
+    document.getElementById('score-value').textContent = trainingGameState.score;
+    
+    // Check if won
+    if (trainingGameState.score >= 5) {
+        endTrainingGame();
+    } else {
+        // Show next treat
+        setTimeout(() => showTrainingTreat(), 500);
+    }
+}
+
+function endTrainingGame() {
+    trainingGameState.isPlaying = false;
+    
+    // Clear timer
+    if (trainingGameState.timer) {
+        clearInterval(trainingGameState.timer);
+    }
+    
+    // Clear treat timeout
+    if (trainingGameState.treatTimeout) {
+        clearTimeout(trainingGameState.treatTimeout);
+    }
+    
+    const cat = CAT_BREEDS.find(c => c.id === currentCareCatId);
+    let happiness = gameState.catHappiness[currentCareCatId] || 70;
+    
+    // Calculate happiness gain based on score and intelligence
+    const baseGain = trainingGameState.score * 3;
+    const intelligenceBonus = Math.floor(cat.stats.intelligence / 20);
+    const happinessGain = baseGain + intelligenceBonus;
+    
+    happiness = Math.min(100, happiness + happinessGain);
+    gameState.catHappiness[currentCareCatId] = happiness;
+    saveGameState();
+    
+    let message = '';
+    if (trainingGameState.score >= 5) {
+        message = `🎉 Perfect! ${cat.name} learned the trick!\n\nHappiness +${happinessGain}%!`;
+    } else if (trainingGameState.score >= 3) {
+        message = `Good job! ${cat.name} is learning!\n\nHappiness +${happinessGain}%!`;
+    } else {
+        message = `${cat.name} needs more practice, but had fun!\n\nHappiness +${happinessGain}%!`;
+    }
+    
+    alert(message);
+    
+    // Close training game
+    closeTrainingGame();
+}
+
+function closeTrainingGame() {
+    trainingGameState.isPlaying = false;
+    
+    // Clear timers
+    if (trainingGameState.timer) {
+        clearInterval(trainingGameState.timer);
+    }
+    if (trainingGameState.treatTimeout) {
+        clearTimeout(trainingGameState.treatTimeout);
+    }
+    
+    // Hide training panel
+    document.getElementById('training-game').classList.add('hidden');
+    document.getElementById('training-treat').classList.add('hidden');
+    
+    // Show care panel again
+    if (currentCareCatId) {
+        showCarePanel();
+    }
+}
+
+// Energy regeneration
+setInterval(() => {
+    if (gameState.playerEnergy < 100) {
+        gameState.playerEnergy = Math.min(100, gameState.playerEnergy + 1);
+        updatePlayerStats();
+        saveGameState();
 /**
  * Start energy regeneration system
  * Regenerates 1 energy every 30 seconds up to maximum of 100
