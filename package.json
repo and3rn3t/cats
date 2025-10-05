@@ -1,6 +1,6 @@
 {
   "name": "cat-collector",
-  "version": "2.6.1",
+  "version": "2.8.0",
   "description": "Cat Collector - A fun, educational game for ages 10-12",
   "scripts": {
     "dev": "python -m http.server 8000",

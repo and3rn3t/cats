@@ -111,6 +111,17 @@ function initGame() {
         initMinigames();
     }
     
+    // Initialize daily challenges system (Phase 5.1)
+    if (window.initializeChallenges) {
+        initializeChallenges(gameState);
+        generateDailyChallenges(gameState);
+    }
+    
+    // Initialize encyclopedia system (Phase 6.5)
+    if (window.initEncyclopedia) {
+        initEncyclopedia();
+    }
+    
     // Initialize environment system (v2.5.0)
     if (window.ENVIRONMENTS && window.renderEnvironmentSelector) {
         renderEnvironmentSelector(gameState);
@@ -164,8 +175,21 @@ function saveGameState() {
             };
         }
         
+        // Serialize daily challenges (Phase 5.1)
+        let dailyChallengesSerialized = null;
+        if (gameState.dailyChallenges) {
+            dailyChallengesSerialized = {
+                ...gameState.dailyChallenges,
+                todayProgress: {
+                    ...gameState.dailyChallenges.todayProgress,
+                    environmentsVisited: Array.from(gameState.dailyChallenges.todayProgress.environmentsVisited || []),
+                    collectedRarities: Array.from(gameState.dailyChallenges.todayProgress.collectedRarities || [])
+                }
+            };
+        }
+        
         localStorage.setItem('catCollectorGame', JSON.stringify({
-            version: '2.5.0',
+            version: '2.7.0',
             collectedCats: Array.from(gameState.collectedCats),
             playerEnergy: gameState.playerEnergy,
             gameStartTime: gameState.gameStartTime,
@@ -180,7 +204,9 @@ function saveGameState() {
             // Environment system (v2.5.0)
             currentEnvironment: gameState.currentEnvironment || 'forest',
             environmentProgress: environmentProgressSerialized,
-            environmentsUnlocked: gameState.environmentsUnlocked || ['forest']
+            environmentsUnlocked: gameState.environmentsUnlocked || ['forest'],
+            // Daily challenges (Phase 5.1)
+            dailyChallenges: dailyChallengesSerialized
         }));
     } catch (error) {
         console.error('Failed to save game state:', error);
@@ -235,6 +261,18 @@ function loadGameState() {
                 };
             }
             
+            // Load daily challenges (Phase 5.1)
+            if (data.dailyChallenges) {
+                gameState.dailyChallenges = {
+                    ...data.dailyChallenges,
+                    todayProgress: {
+                        ...data.dailyChallenges.todayProgress,
+                        environmentsVisited: new Set(data.dailyChallenges.todayProgress.environmentsVisited || []),
+                        collectedRarities: new Set(data.dailyChallenges.todayProgress.collectedRarities || [])
+                    }
+                };
+            }
+            
             console.log('✅ Game state loaded. Current environment:', gameState.currentEnvironment);
         }
     } catch (error) {
@@ -264,6 +302,22 @@ function setupEventListeners() {
     document.getElementById('achievements-btn')?.addEventListener('click', () => {
         if (window.playButtonClick) playButtonClick();
         showAchievements();
+    });
+    document.getElementById('challenges-btn')?.addEventListener('click', () => {
+        if (window.playButtonClick) playButtonClick();
+        if (window.openChallenges) {
+            openChallenges(gameState);
+        }
+    });
+    document.getElementById('encyclopedia-btn')?.addEventListener('click', () => {
+        console.log('📚 Encyclopedia button clicked!');
+        if (window.playButtonClick) playButtonClick();
+        if (window.openEncyclopedia) {
+            console.log('📚 Calling openEncyclopedia()');
+            openEncyclopedia();
+        } else {
+            console.error('❌ openEncyclopedia function not found!');
+        }
     });
     document.getElementById('analytics-btn')?.addEventListener('click', () => {
         if (window.playButtonClick) playButtonClick();
@@ -540,6 +594,11 @@ function performExploration(exploreBtn) {
     const currentEnv = gameState.currentEnvironment || 'forest';
     if (gameState.environmentProgress?.[currentEnv]) {
         gameState.environmentProgress[currentEnv].visits += 1;
+    }
+    
+    // Update challenge progress (Phase 5.1)
+    if (window.updateChallengeProgress) {
+        updateChallengeProgress(gameState, 'exploration', { environment: currentEnv });
     }
     
     updatePlayerStats();
@@ -869,6 +928,14 @@ function processSuccessfulEncounter(cat, action, isFirstAttempt, message, strate
         updateAchievements(gameState);
     }
     
+    // Update challenge progress (Phase 5.1)
+    if (window.updateChallengeProgress) {
+        updateChallengeProgress(gameState, 'cat_collected', {
+            rarity: cat.stats.rarity,
+            firstTry: isFirstAttempt
+        });
+    }
+    
     // Show strategy feedback
     const strategyFeedback = generateStrategyFeedback(strategyBonus);
     
@@ -988,6 +1055,15 @@ function handleEncounterAction(action) {
     // Track for analytics
     if (window.recordExploration) {
         recordExploration(gameState, cat, action, success);
+    }
+    
+    // Update challenge progress (Phase 5.1)
+    if (window.updateChallengeProgress) {
+        if (success) {
+            updateChallengeProgress(gameState, 'action_success', { action });
+        } else {
+            updateChallengeProgress(gameState, 'action_fail', { action });
+        }
     }
     
     if (success) {

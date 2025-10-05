@@ -6,7 +6,7 @@
     <meta name="description" content="Cat Collector - A fun, educational game for ages 10-12. Discover and collect 25 unique cat breeds from around the world!">
     <meta name="keywords" content="cat game, educational game, kids game, cat breeds, collection game">
     <title>Cat Collector - A Wild Cat Adventure</title>
-    <link rel="stylesheet" href="styles.css?v=2.6.1k">
+    <link rel="stylesheet" href="styles.css?v=2.8.0">
 </head>
 <body>
     <!-- Loading Overlay (Phase 4.2) -->
@@ -57,10 +57,30 @@
             <nav id="controls" aria-label="Main game controls">
                 <button id="explore-btn" class="main-btn" aria-label="Explore the wilderness to find cats">🔍 Explore for Cats</button>
                 <button id="collection-btn" class="main-btn" aria-label="View your cat collection">📚 View Collection</button>
+                <button id="challenges-btn" class="main-btn" aria-label="View daily challenges">🎯 Daily Challenges</button>
+                <button id="encyclopedia-btn" class="main-btn" aria-label="View cat encyclopedia">📖 Encyclopedia</button>
                 <button id="achievements-btn" class="main-btn" aria-label="View achievements">🏆 Achievements</button>
                 <button id="analytics-btn" class="main-btn" aria-label="View analytics dashboard">📊 Analytics</button>
                 <button id="help-btn" class="main-btn" aria-label="Show help information">❓ Help</button>
             </nav>
+            
+            <!-- Daily Challenges Panel -->
+            <aside id="challenges-panel" class="side-panel hidden" aria-label="Daily Challenges">
+                <div class="panel-header">
+                    <h3>🎯 Daily Challenges</h3>
+                    <button class="close-panel-btn" onclick="closeChallenges()" aria-label="Close challenges panel">×</button>
+                </div>
+                <div id="challenges-content"></div>
+            </aside>
+            
+            <!-- Encyclopedia Panel -->
+            <aside id="encyclopedia-panel" class="side-panel hidden" aria-label="Cat Encyclopedia">
+                <div class="panel-header">
+                    <h3>📖 Encyclopedia</h3>
+                    <button class="close-panel-btn" onclick="closeEncyclopedia()" aria-label="Close encyclopedia panel">×</button>
+                </div>
+                <div id="encyclopedia-content"></div>
+            </aside>
             
             <!-- Achievements Panel -->
             <aside id="achievements-panel" class="side-panel hidden" aria-label="Achievements">
@@ -202,12 +222,14 @@
 
     <script src="catData.js?v=2.5.1"></script>
     <script src="achievements.js?v=2.5.1"></script>
+    <script src="challenges.js?v=2.8.0"></script>
+    <script src="encyclopedia.js?v=2.8.0b"></script>
     <script src="environments.js?v=2.5.1"></script>
     <script src="visuals.js?v=2.5.1"></script>
     <script src="analytics.js?v=2.5.1"></script>
     <script src="audio.js?v=2.5.1"></script>
     <script src="animations.js?v=2.6.0"></script>
     <script src="minigames.js?v=2.5.1"></script>
-    <script src="game.js?v=2.6.1k"></script>
+    <script src="game.js?v=2.8.0a"></script>
 </body>
 </html>

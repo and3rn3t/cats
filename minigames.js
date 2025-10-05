@@ -159,6 +159,11 @@ function startMinigame(gameName) {
     minigameState.score = 0;
     minigameState.isPlaying = true;
     
+    // Track minigame play for challenges (Phase 5.1)
+    if (window.gameState && window.updateChallengeProgress) {
+        updateChallengeProgress(window.gameState, 'minigame_played');
+    }
+    
     // Hide selection, show game screen
     const selectionScreen = document.getElementById('game-selection');
     const gameScreen = document.getElementById('minigame-screen');
